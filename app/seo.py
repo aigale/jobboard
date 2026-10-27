@@ -47,7 +47,7 @@ def _page(title: str, description: str, canonical: str, body: str, *, noindex: b
 <link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,600;12..96,800&family=Figtree:wght@400;500;600;700&family=IBM+Plex+Mono:wght@500&display=swap">
 <link rel="stylesheet" href="/site.css"><link rel="icon" href="/icon-192.png"><link rel="manifest" href="/manifest.json">
-<meta name="theme-color" content="#0038A8">{lds}
+<meta name="theme-color" content="#0038A8"><script src="/theme.js"></script>{lds}
 </head><body>
 <script src="/common.js"></script>
 <div class="tricolor"></div>

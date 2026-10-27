@@ -1,0 +1,33 @@
+[
+  {
+    "legal": "See https://remoteok.com/api for terms."
+  },
+  {
+    "id": "7001",
+    "company": "Globex",
+    "company_logo": "",
+    "position": "Backend Engineer",
+    "tags": ["python", "api"],
+    "description": "Build APIs for a global team.",
+    "location": "",
+    "apply_url": "https://remoteok.com/remote-jobs/7001",
+    "salary_min": 90000,
+    "salary_max": 120000,
+    "date": "2026-10-21T08:00:00+00:00",
+    "url": "https://remoteok.com/remote-jobs/7001"
+  },
+  {
+    "id": "7002",
+    "company": "Initech",
+    "company_logo": "",
+    "position": "US Payroll Analyst",
+    "tags": ["finance"],
+    "description": "Must live in the United States.",
+    "location": "USA",
+    "apply_url": "https://remoteok.com/remote-jobs/7002",
+    "salary_min": 0,
+    "salary_max": 0,
+    "date": "2026-10-20T08:00:00+00:00",
+    "url": "https://remoteok.com/remote-jobs/7002"
+  }
+]

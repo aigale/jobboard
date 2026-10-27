@@ -399,10 +399,12 @@ def normalize(raw: RawJob, cfg: Settings | None = None) -> NormalizedJob | None:
 
     setup = detect_setup(raw)
     loc = classify_location(raw, is_remote=(setup == "Remote"))
-    if not is_allowed(loc.eligibility, cfg):
+    # A feed can state that a role is open worldwide even though the site's default
+    # policy is to leave those out. Trust the explicit feed signal for that source.
+    if not is_allowed(loc.eligibility, cfg) and not (raw.worldwide and loc.eligibility == "worldwide_remote"):
         return None
 
-    s = raw.salary or parse_salary_text(desc_text or "")
+    s = raw.salary or parse_salary_text(raw.salary_text or desc_text or "")
     smin = smax = None
     sorig = None
     if s:

@@ -39,6 +39,12 @@ class RawJob:
     description_text: str | None = None
     posted_at: datetime | None = None
     salary: StructuredSalary | None = None
+    salary_text: str | None = None
+    # Aggregator feeds mix employers: the source says who is hiring and (when the feed
+    # states it) that the role is open anywhere. Direct ATS sources leave these empty.
+    company_name: str | None = None
+    company_logo: str | None = None
+    worldwide: bool = False
 
 
 @dataclass
@@ -134,6 +140,26 @@ class Http:
             return True
         ua = self.client.headers.get("user-agent", "*")
         return parser.can_fetch(ua, url)
+
+
+def fix_mojibake(text: str | None) -> str | None:
+    """Repair UTF-8 text that a feed decoded as Latin-1 (notably the Remote OK API)."""
+    if not text or not any(marker in text for marker in ("â", "Â", "Ã", "ð")):
+        return text
+    try:
+        return text.encode("latin-1").decode("utf-8")
+    except (UnicodeEncodeError, UnicodeDecodeError):
+        return text
+
+
+def salary_interval(value: Any) -> str | None:
+    """Map a feed's free-text pay period to HOUR | DAY | WEEK | MONTH | YEAR."""
+    text = str(value or "").strip().lower()
+    for word, interval in (("hour", "HOUR"), ("day", "DAY"), ("week", "WEEK"),
+                           ("month", "MONTH"), ("year", "YEAR"), ("annual", "YEAR")):
+        if word in text:
+            return interval
+    return None
 
 
 def parse_dt(value: Any) -> datetime | None:

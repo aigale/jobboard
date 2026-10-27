@@ -1,10 +1,58 @@
-# Your list of companies to crawl. This file is uploaded to GitHub and read by the server.
-# See companies.example.yaml for the format and where to find each company's `key`.
+# Companies and public job feeds to crawl. See companies.example.yaml for the format.
 #
-# Example (remove the # signs and use a real company):
-# - name: Acme Philippines
-#   source: greenhouse
-#   key: acme
-#   careers_url: https://acme.com/careers
+# The entries below are free, no-key job feeds. They are aggregators: each job is
+# attributed to the employer named in the feed, and only jobs open to people in the
+# Philippines (PH / APAC / Worldwide remote) are kept. They are a starting point for
+# a populated board; add direct employer ATS sources for higher-quality listings.
 
-[]
+- name: Himalayas
+  source: himalayas
+  key: all
+  careers_url: https://himalayas.app/jobs
+  verified: false
+  options:
+    max_pages: 5
+
+- name: Arbeitnow
+  source: arbeitnow
+  key: all
+  careers_url: https://www.arbeitnow.com/
+  verified: false
+  options:
+    max_pages: 2
+
+- name: Remote OK
+  source: remoteok
+  key: all
+  careers_url: https://remoteok.com/
+  verified: false
+
+- name: Jobicy
+  source: jobicy
+  key: philippines
+  careers_url: https://jobicy.com/
+  verified: false
+  options:
+    geo: philippines
+    count: 100
+
+- name: Remotive
+  source: remotive
+  key: latest
+  careers_url: https://remotive.com/
+  verified: false
+
+- name: Working Nomads
+  source: workingnomads
+  key: all
+  careers_url: https://www.workingnomads.com/jobs
+  verified: false
+
+- name: We Work Remotely
+  source: weworkremotely
+  key: all
+  careers_url: https://weworkremotely.com/
+  verified: false
+  options:
+    feed: all
+    max_jobs: 100

@@ -1,0 +1,35 @@
+{
+  "jobCount": 2,
+  "jobs": [
+    {
+      "id": 9001,
+      "jobSlug": "9001-customer-support-specialist",
+      "jobTitle": "Customer Support Specialist",
+      "companyName": "Acme PH",
+      "companyLogo": "https://example.com/acme.png",
+      "jobGeo": "Philippines",
+      "jobIndustry": ["Customer Support"],
+      "jobType": ["Full Time"],
+      "jobDescription": "<p>Help customers in the Philippines.</p>",
+      "pubDate": "2026-10-20T08:00:00+00:00",
+      "salaryMin": 50000,
+      "salaryMax": 60000,
+      "salaryCurrency": "PHP",
+      "salaryPeriod": "monthly",
+      "url": "https://jobicy.com/jobs/9001-customer-support-specialist"
+    },
+    {
+      "id": 9002,
+      "jobSlug": "9002-us-only-role",
+      "jobTitle": "US Only Role",
+      "companyName": "Acme US",
+      "companyLogo": "https://example.com/acme-us.png",
+      "jobGeo": "United States",
+      "jobIndustry": ["Sales"],
+      "jobType": ["Full Time"],
+      "jobDescription": "<p>US residents only.</p>",
+      "pubDate": "2026-10-19T08:00:00+00:00",
+      "url": "https://jobicy.com/jobs/9002-us-only-role"
+    }
+  ]
+}

@@ -1,0 +1,32 @@
+{
+  "job-count": 2,
+  "total-job-count": 2,
+  "jobs": [
+    {
+      "id": 6001,
+      "url": "https://remotive.com/remote-jobs/software-dev/backend-engineer-6001",
+      "title": "Backend Engineer",
+      "company_name": "Umbrella",
+      "company_logo": "https://remotive.com/job/6001/logo",
+      "category": "Software Development",
+      "job_type": "full_time",
+      "candidate_required_location": "Worldwide",
+      "salary": "$90k - $120k",
+      "publication_date": "2026-10-18T10:00:00",
+      "description": "<p>Remote backend role.</p>"
+    },
+    {
+      "id": 6002,
+      "url": "https://remotive.com/remote-jobs/sales/us-sales-6002",
+      "title": "US Sales Lead",
+      "company_name": "Umbrella US",
+      "company_logo": "https://remotive.com/job/6002/logo",
+      "category": "Sales",
+      "job_type": "full_time",
+      "candidate_required_location": "USA Only",
+      "salary": "",
+      "publication_date": "2026-10-17T10:00:00",
+      "description": "<p>US only.</p>"
+    }
+  ]
+}

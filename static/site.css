@@ -99,10 +99,10 @@ aside.filters{display:flex;flex-direction:column;gap:22px;align-self:start;posit
 .fgroup h3{font-family:var(--f-body);font-size:12px;letter-spacing:.1em;text-transform:uppercase;color:var(--muted);margin-bottom:10px;font-weight:700}
 .opts{display:flex;flex-direction:column;gap:6px}
 .opt{display:flex;align-items:center;gap:10px;font-size:15px;cursor:pointer}
-.opt input{accent-color:var(--flag-blue);width:16px;height:16px}
+.opt input{accent-color:var(--accent);width:16px;height:16px}
 .opt small{margin-left:auto;color:var(--muted);font-family:var(--f-mono);font-size:12px}
 .range-out{font-family:var(--f-mono);font-size:13px;color:var(--fg)}
-input[type=range]{width:100%;accent-color:var(--flag-red)}
+input[type=range]{width:100%;accent-color:var(--hot)}
 .linkbtn{background:none;border:0;padding:0;color:var(--accent);font-weight:700;cursor:pointer;font-size:14px;text-align:left}
 
 .feed-head{display:flex;flex-wrap:wrap;align-items:end;justify-content:space-between;gap:12px;margin-bottom:16px}
@@ -520,6 +520,11 @@ label.doc{cursor:pointer}
 .or{display:flex;align-items:center;gap:10px;color:var(--muted);font-size:13px;margin:4px 0 14px}
 .or::before,.or::after{content:"";flex:1;height:1px;background:var(--line)}
 .langsel{font:inherit;font-size:14px;border:1px solid var(--line);border-radius:10px;padding:6px 8px;background:var(--surface);color:var(--fg)}
+/* Light/dark switcher: same two labels in both themes; only colours change. */
+.themegroup{display:inline-flex;align-items:center;gap:2px;border:1.5px solid var(--line);border-radius:10px;background:var(--surface);padding:2px;flex:none}
+.themebtn{border:0;background:transparent;color:var(--muted);font-weight:700;font-size:13px;line-height:1;padding:7px 9px;border-radius:7px;cursor:pointer}
+.themebtn:hover{color:var(--fg)}
+.themebtn[aria-pressed="true"]{background:var(--accent);color:var(--accent-ink)}
 .invoice{max-width:760px;margin:0 auto;background:var(--surface);border:1px solid var(--line);border-radius:14px;padding:32px}
 .invoice .top{display:flex;justify-content:space-between;gap:20px;flex-wrap:wrap;margin-bottom:24px}
 .invoice h1{font-size:28px;margin:0}
@@ -535,11 +540,13 @@ label.doc{cursor:pointer}
 @media (max-width:640px){
   nav.links{gap:10px}
   .langsel{padding:5px 4px;font-size:13px}
+  .themebtn{padding:6px 6px;font-size:12px}
 }
 @media (max-width:420px){
   header.top nav.links .btn{padding:8px 10px;font-size:13px}
   header.top nav.links a.plain{font-size:14px}
   header.top .brand{font-size:19px}
+  .themebtn{padding:5px 5px;font-size:11px}
 }
 header.top nav.links a{white-space:nowrap}
 @media (max-width:480px){header.top .hide-xs{display:none}}

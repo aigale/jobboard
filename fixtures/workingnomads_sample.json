@@ -1,0 +1,22 @@
+[
+  {
+    "url": "https://www.workingnomads.com/job/go/5001/",
+    "title": "Senior Angular Developer",
+    "description": "<p>Work with clients across APAC.</p>",
+    "company_name": "Lemon Works",
+    "category_name": "Development",
+    "tags": "angular,typescript",
+    "location": "Europe, LATAM, APAC",
+    "pub_date": "2026-10-21T14:06:17-04:00"
+  },
+  {
+    "url": "https://www.workingnomads.com/job/go/5002/",
+    "title": "German Payroll Specialist",
+    "description": "<p>Germany only.</p>",
+    "company_name": "Berlin GmbH",
+    "category_name": "Finance",
+    "tags": "payroll",
+    "location": "Germany",
+    "pub_date": "2026-10-20T09:00:00-04:00"
+  }
+]

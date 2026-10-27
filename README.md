@@ -48,6 +48,14 @@ Each company needs a `name`, a `source` and a `key`. The comments in
 build the list: search for companies hiring in the Philippines, open their careers page,
 and note which system the job links point to (boards.greenhouse.io, jobs.lever.co, and so on).
 
+`companies.yaml` also ships with seven free, no-key aggregator feeds: Himalayas, Arbeitnow,
+Remote OK, Jobicy, Remotive, Working Nomads and We Work Remotely. They are a quick way to
+populate a new board. Unlike an ATS source, a feed mixes employers, so each job is attributed
+to the employer named in the feed and the normal Philippine/APAC/Worldwide filter still
+applies. For a production board, add direct employer ATS sources as well. Adzuna and
+TheirStack need an account/API key; the Bundesagentur für Arbeit feed only covers jobs in
+Germany, so it is not useful for this board.
+
 ## Run in production
 
 ```bash
@@ -125,6 +133,12 @@ Write one async function in `app/sources/<name>.py` that takes a `CompanySpec` a
 shared `Http` client and returns a list of `RawJob`, then register it in
 `app/sources/__init__.py`. Add a recorded response to `fixtures/` and a route for it in
 `app/demo.py` so it's covered by the tests.
+
+An aggregator source (one feed containing many employers) should also be added to
+`FEED_SOURCES` and set `RawJob.company_name` (plus `company_logo` when available). The
+crawler then creates one company page per employer, prefixes each external id with the feed
+slug so feeds cannot close each other's jobs, and applies the normal location filter.
+Set `RawJob.worldwide = True` only when the feed explicitly says the role is open anywhere.
 
 ## Billing, analytics, SEO and imports
 

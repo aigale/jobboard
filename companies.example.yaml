@@ -12,6 +12,19 @@
 #
 # Optional fields: slug, careers_url, logo_url, verified (default true), active (default true).
 # Only jobs located in the Philippines or remote-open to the Philippines are kept.
+#
+# Public aggregator feeds need no account or key. They mix employers, so Sinag attributes
+# every job to the employer named in the feed. Available sources:
+#   himalayas, arbeitnow, remoteok, jobicy, remotive, workingnomads, weworkremotely
+# Example:
+# - name: Jobicy
+#   source: jobicy
+#   key: philippines
+#   options: {geo: philippines, count: 100}
+# - name: We Work Remotely
+#   source: weworkremotely
+#   key: all
+#   options: {feed: all, max_jobs: 100}
 
 - name: Example Fintech PH
   source: greenhouse

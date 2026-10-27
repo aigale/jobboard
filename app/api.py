@@ -27,6 +27,7 @@ from .db import get_session, init_db
 from .matching import match_score
 from .models import AlertSubscription, Application, CandidateProfile, Company, CrawlRun, Job, User, aware, utcnow
 from .schemas import AlertIn, CompanyOut, FacetCount, Facets, JobPage, JobSummary
+from .sources import FEED_SOURCES
 
 log = logging.getLogger("sinag.api")
 
@@ -217,7 +218,8 @@ def companies(db: Session = Depends(get_session)):
     rows = db.execute(
         select(Company, func.count(Job.id))
         .outerjoin(Job, (Job.company_id == Company.id) & (Job.status == "open"))
-        .where(Company.active.is_(True), Company.approval == "approved")
+        .where(Company.active.is_(True), Company.approval == "approved",
+               Company.source.notin_(tuple(FEED_SOURCES)))
         .group_by(Company.id).order_by(Company.name)).all()
     return [{"name": c.name, "slug": c.slug, "logo_url": c.logo_url, "careers_url": c.careers_url,
              "industry": c.industry, "open_jobs": n, "verified": c.verified} for c, n in rows]
@@ -265,10 +267,12 @@ def confirm_alert(token: str, db: Session = Depends(get_session)):
 
 
 def _simple_page(title: str, msg: str) -> str:
-    return (f"<!doctype html><meta charset='utf-8'><meta name='viewport' content='width=device-width,initial-scale=1'>"
-            f"<title>{html.escape(title)} · Sinag Jobs</title><body style='font-family:system-ui;max-width:520px;margin:64px auto;"
-            f"padding:0 16px;color:#101A36;background:#fff'><h1 style='color:#0038A8'>{html.escape(title)}</h1><p>{html.escape(msg)}</p>"
-            f"<p><a href='/'>Back to Sinag Jobs</a></p></body>")
+    return (f"<!doctype html><html lang='en'><head><meta charset='utf-8'><meta name='viewport' content='width=device-width,initial-scale=1'>"
+            f"<title>{html.escape(title)} · Sinag Jobs</title>"
+            f"<meta name='theme-color' content='#0038A8'><link rel='stylesheet' href='/site.css'>"
+            f"<script src='/theme.js'></script></head>"
+            f"<body><main class='wrap page'><h1>{html.escape(title)}</h1><p>{html.escape(msg)}</p>"
+            f"<p><a href='/'>Back to Sinag Jobs</a></p></main></body></html>")
 
 
 @app.get("/api/alerts/unsubscribe", response_class=HTMLResponse)

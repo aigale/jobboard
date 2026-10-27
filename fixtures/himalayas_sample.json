@@ -1,0 +1,36 @@
+{
+  "offset": 0,
+  "limit": 20,
+  "totalCount": 2,
+  "nextCursor": null,
+  "jobs": [
+    {
+      "title": "Marketing Specialist",
+      "companyName": "Acme PH",
+      "companyLogo": "https://example.com/acme-ph.png",
+      "employmentType": "Full Time",
+      "minSalary": 40000,
+      "maxSalary": 50000,
+      "salaryPeriod": "monthly",
+      "currency": "PHP",
+      "locationRestrictions": ["Philippines"],
+      "parentCategories": ["Marketing"],
+      "description": "<p>Remote marketing role for the Philippines.</p>",
+      "pubDate": 1793109800,
+      "guid": "https://himalayas.app/companies/acme-ph/jobs/marketing-specialist",
+      "applicationLink": "https://himalayas.app/companies/acme-ph/jobs/marketing-specialist?utm_source=api"
+    },
+    {
+      "title": "US Staff Engineer",
+      "companyName": "Acme US",
+      "companyLogo": "https://example.com/acme-us.png",
+      "employmentType": "Full Time",
+      "locationRestrictions": ["United States"],
+      "parentCategories": ["Developer"],
+      "description": "<p>US based only.</p>",
+      "pubDate": 1793109762,
+      "guid": "https://himalayas.app/companies/acme-us/jobs/staff-engineer",
+      "applicationLink": "https://himalayas.app/companies/acme-us/jobs/staff-engineer?utm_source=api"
+    }
+  ]
+}

@@ -1,0 +1,29 @@
+{
+  "data": [
+    {
+      "slug": "remote-support-engineer-4001",
+      "company_name": "Globex",
+      "title": "Remote Support Engineer",
+      "description": "<p>Support customers anywhere.</p>",
+      "remote": true,
+      "url": "https://www.arbeitnow.com/jobs/companies/globex/remote-support-engineer-4001",
+      "tags": ["Customer Service"],
+      "job_types": ["Full-time"],
+      "location": "Anywhere",
+      "created_at": 1793107861
+    },
+    {
+      "slug": "berlin-office-manager-4002",
+      "company_name": "Berlin GmbH",
+      "title": "Office Manager",
+      "description": "<p>On-site in Berlin.</p>",
+      "remote": false,
+      "url": "https://www.arbeitnow.com/jobs/companies/berlin-gmbh/office-manager-4002",
+      "tags": ["Administration"],
+      "job_types": ["Full-time"],
+      "location": "Berlin",
+      "created_at": 1793107800
+    }
+  ],
+  "links": {}
+}

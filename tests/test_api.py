@@ -71,6 +71,19 @@ def test_facets(client):
     assert f["perk"][0] == {"value": "13th month", "count": 7}
 
 
+def test_company_directory_omits_companies_with_no_open_jobs(client, factory):
+    from app.models import Company
+
+    with factory() as s:
+        s.add(Company(slug="empty-demo-co", name="Empty Demo Co", source="direct", source_key="",
+                      approval="approved", active=True))
+        s.commit()
+
+    rows = client.get("/api/companies").json()
+    assert len(rows) == 6
+    assert "empty-demo-co" not in {row["slug"] for row in rows}
+
+
 def test_alerts(client):
     r = client.post("/api/alerts", json={"email": "Juan@Example.com", "category": "Engineering"})
     assert r.status_code == 201 and "confirmation link" in r.json()["message"] and "juan@example.com" in r.json()["message"]

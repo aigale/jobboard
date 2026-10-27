@@ -511,9 +511,9 @@ def test_language_files_are_complete_and_safe():
             groups = _re.compile(pat).groups
             assert all(int(n) <= groups for n in _re.findall(r"\$(\d)", out)), (lang, pat)
     # the brand and the privacy notice are never machine-swapped
-    i18n = (static / "i18n.js").read_text()
+    i18n = (static / "i18n.js").read_text(encoding="utf-8")
     assert 'classList.contains("brand")' in i18n
-    assert 'translate="no"' in (static / "privacy.html").read_text()
+    assert 'translate="no"' in (static / "privacy.html").read_text(encoding="utf-8")
 
 
 def test_language_choice_is_remembered(env):

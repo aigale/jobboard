@@ -224,7 +224,9 @@ def companies(db: Session = Depends(get_session)):
         .outerjoin(Job, (Job.company_id == Company.id) & (Job.status == "open"))
         .where(Company.active.is_(True), Company.approval == "approved",
                Company.source.notin_(tuple(FEED_SOURCES)))
-        .group_by(Company.id).order_by(Company.name)).all()
+        .group_by(Company.id)
+        .having(func.count(Job.id) > 0)
+        .order_by(Company.name)).all()
     return [{"name": c.name, "slug": c.slug, "logo_url": c.logo_url, "careers_url": c.careers_url,
              "industry": c.industry, "open_jobs": n, "verified": c.verified} for c, n in rows]
 

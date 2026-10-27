@@ -45,7 +45,7 @@ def test_job_lifecycle_update_close_reopen(factory, cfg):
     with factory() as s:
         original_id = s.scalar(select(Job.id).where(Job.title == "Customer Experience Specialist"))
 
-    gh = json.loads((FIXTURES / "greenhouse_kalesalabs.json").read_text().replace("{{ago:", "{{x:"))
+    gh = json.loads((FIXTURES / "greenhouse_kalesalabs.json").read_text(encoding="utf-8").replace("{{ago:", "{{x:"))
     now = datetime.now(timezone.utc).isoformat()
     for j in gh["jobs"]:
         j["first_published"] = j["updated_at"] = now

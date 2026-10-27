@@ -4,8 +4,9 @@
   python -m app.cli sync-companies       load companies.yaml into the database
   python -m app.cli crawl [--company X]  crawl now (all companies, or one slug)
   python -m app.cli status               show companies, job counts and recent errors
-  python -m app.cli demo                 fill the database from the offline sample responses in fixtures/,
-                                         plus demo accounts and employer jobs to try Easy Apply
+  python -m app.cli demo                 create the demo accounts and remove previous sample listings
+  python -m app.cli demo --sample-jobs   also load the offline fixtures and Easy Apply jobs (local only)
+  python -m app.cli remove-demo-jobs     delete offline sample listings from an existing database
   python -m app.cli create-admin EMAIL   create a site admin (asks for a password)
   python -m app.cli outbox               show the latest emails (useful when SMTP isn't set up)
   python -m app.cli send-alerts          send the daily alert digest now
@@ -41,7 +42,10 @@ def main(argv: list[str] | None = None) -> int:
     c = sub.add_parser("crawl")
     c.add_argument("--company", help="only this company slug")
     sub.add_parser("status")
-    sub.add_parser("demo")
+    d = sub.add_parser("demo")
+    d.add_argument("--sample-jobs", action="store_true",
+                   help="also load the offline fixture jobs and three Easy Apply listings")
+    sub.add_parser("remove-demo-jobs")
     ca = sub.add_parser("create-admin")
     ca.add_argument("email")
     ca.add_argument("--name", default="Site admin")
@@ -76,12 +80,21 @@ def main(argv: list[str] | None = None) -> int:
             total = s.scalar(select(func.count()).select_from(Job).where(Job.status == "open"))
             print(f"\n{total} open jobs")
     elif args.cmd == "demo":
-        from .demo import load_demo, load_demo_accounts
-        _print_run(load_demo())
+        from .demo import load_demo, load_demo_accounts, remove_demo_jobs
+        if args.sample_jobs:
+            _print_run(load_demo())
+        else:
+            removed = remove_demo_jobs()
+            if removed:
+                print(f"Removed {removed} demo job(s) from the database.")
         print()
         print("Demo accounts (local use only; password for all three: sinag-demo-123):")
-        for line in load_demo_accounts():
+        for line in load_demo_accounts(sample_jobs=args.sample_jobs):
             print("  " + line)
+    elif args.cmd == "remove-demo-jobs":
+        from .demo import remove_demo_jobs
+        removed = remove_demo_jobs()
+        print(f"Removed {removed} demo job(s) and the offline sample companies.")
     elif args.cmd == "create-admin":
         import getpass
         from .auth import _check_email, _check_password, hash_password

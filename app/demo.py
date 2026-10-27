@@ -1,7 +1,9 @@
-"""Offline demo: crawl recorded sample responses in fixtures/ instead of the internet.
+"""Offline demo data and helper fixtures.
 
-`python -m app.cli demo` fills the database so you can try the site and API without
-configuring real companies. Tests use the same transport.
+`python -m app.cli demo` creates the demo accounts without publishing sample
+listings. The demo employer can then post real jobs, or an operator can crawl
+the real companies in ``companies.yaml``. Tests and offline UI work can opt in
+to the recorded fixtures with ``python -m app.cli demo --sample-jobs``.
 """
 from __future__ import annotations
 
@@ -14,12 +16,13 @@ from pathlib import Path
 from urllib.parse import urlsplit
 
 import httpx
-from sqlalchemy import select
+from sqlalchemy import delete, select
 
 from .config import ROOT, Settings, settings
 from .crawler import crawl
 from .db import SessionLocal
-from .models import Company
+from .models import (Assessment, CandidateProfile, Company, CompanyMember, DailyStat, Job, User,
+                     join_pipes, utcnow)
 
 FIXTURES = ROOT / "fixtures"
 
@@ -32,6 +35,8 @@ DEMO_COMPANIES = [
     dict(slug="tindahan", name="Tindahan.co", source="jsonld", source_key="https://tindahan.example.ph/careers", industry="E-commerce & Retail",
          options={"job_link_pattern": r"/careers/[a-z0-9-]+$"}),
 ]
+DEMO_EMPLOYER_SLUG = "sinag-demo-corp"
+DEMO_FIXTURE_SLUGS = tuple(d["slug"] for d in DEMO_COMPANIES)
 
 
 def _fill_dates(text: str, now: datetime) -> str:
@@ -101,11 +106,39 @@ def ensure_demo_companies(session) -> None:
     session.commit()
 
 
-def load_demo(cfg: Settings = settings):
-    with SessionLocal() as s:
+def load_demo(cfg: Settings = settings, session_factory=SessionLocal):
+    """Seed the offline fixture crawl. Used only by ``demo --sample-jobs`` and tests."""
+    with session_factory() as s:
         ensure_demo_companies(s)
     fast = dataclasses.replace(cfg, per_host_delay_seconds=0.0)
-    return asyncio.run(crawl(SessionLocal, fast, transport=fixture_transport()))
+    return asyncio.run(crawl(session_factory, fast, transport=fixture_transport()))
+
+
+def remove_demo_jobs(session_factory=SessionLocal) -> int:
+    """Delete the offline sample listings and their fake crawled companies.
+
+    The demo employer company stays so the demo employer account can still sign
+    in and post real jobs. Sample jobs are identified by the seeded company
+    slugs; real feed jobs are never touched.
+    """
+    with session_factory() as s:
+        slugs = (*DEMO_FIXTURE_SLUGS, DEMO_EMPLOYER_SLUG)
+        company_ids = list(s.scalars(select(Company.id).where(Company.slug.in_(slugs))))
+        if not company_ids:
+            return 0
+        job_ids = list(s.scalars(select(Job.id).where(Job.company_id.in_(company_ids))))
+        if job_ids:
+            keys = [str(job_id) for job_id in job_ids]
+            s.execute(delete(DailyStat).where(
+                DailyStat.metric.in_(("job_view", "application", "apply_click")),
+                DailyStat.key.in_(keys),
+            ))
+            s.execute(delete(Job).where(Job.id.in_(job_ids)))
+        fixture_ids = list(s.scalars(select(Company.id).where(Company.slug.in_(DEMO_FIXTURE_SLUGS))))
+        if fixture_ids:
+            s.execute(delete(Company).where(Company.id.in_(fixture_ids)))
+        s.commit()
+        return len(job_ids)
 
 
 DEMO_PASSWORD = "sinag-demo-123"
@@ -138,14 +171,19 @@ DEMO_DIRECT_JOBS = [
 ]
 
 
-def load_demo_accounts() -> list[str]:
-    """Demo employer (approved company + 3 Easy Apply jobs), job seeker and admin. Local use only."""
+def load_demo_accounts(sample_jobs: bool = False, session_factory=SessionLocal) -> list[str]:
+    """Create the demo employer, seeker and admin accounts.
+
+    No listings are seeded by default: the demo app should show real crawl/feed
+    jobs only. ``sample_jobs=True`` adds the offline fixtures and three Easy
+    Apply jobs for local UI tests.
+    """
     from .auth import hash_password
+    from .common import job_path
     from .employer import JobIn, _apply_job_fields, _publish
-    from .models import CandidateProfile, CompanyMember, Job, User, join_pipes, utcnow
     import secrets as _secrets
 
-    with SessionLocal() as s:
+    with session_factory() as s:
         def user(email, name, role):
             u = s.scalar(select(User).where(User.email == email))
             if u is None:
@@ -164,35 +202,59 @@ def load_demo_accounts() -> list[str]:
                                    years_experience=1, desired_salary=25000, desired_setups=join_pipes(["Hybrid", "Remote"]),
                                    desired_categories=join_pipes(["Customer Support"]), searchable=True,
                                    summary="One year handling chat and email support for a Cebu fintech. Calm with upset customers."))
-        c = s.scalar(select(Company).where(Company.slug == "sinag-demo-corp"))
+        c = s.scalar(select(Company).where(Company.slug == DEMO_EMPLOYER_SLUG))
         if c is None:
-            c = Company(slug="sinag-demo-corp", name="Sinag Demo Corp", source="direct", source_key="",
+            c = Company(slug=DEMO_EMPLOYER_SLUG, name="Sinag Demo Corp", source="direct", source_key="",
                         industry="Software & Technology", website="https://example.com", location_text="Cebu City",
                         about="A demo employer for trying Easy Apply and the applicant board.", approval="approved",
                         verified=True, active=True, options={})
             s.add(c)
             s.flush()
+        else:
+            # Keep the account usable after remove_demo_jobs() has cleaned the
+            # sample listings off an existing database.
+            c.source, c.source_key = "direct", ""
+            c.approval, c.verified, c.active = "approved", True, True
+
+        member = s.scalar(select(CompanyMember).where(
+            CompanyMember.company_id == c.id, CompanyMember.user_id == emp.id))
+        if member is None:
             s.add(CompanyMember(company_id=c.id, user_id=emp.id, role="owner"))
-            c.tagline = "Simple payment tools for small Philippine businesses"
-            c.size, c.founded = "51-200", 2019
-            c.culture_values = [{"title": "Malasakit", "text": "We treat every merchant's problem like our own."},
-                                {"title": "Bayanihan", "text": "Nobody ships alone. We help each other finish."},
-                                {"title": "Tapat", "text": "We say what we know and what we don't."}]
-            c.testimonials = [{"name": "Liza M.", "role": "Support lead", "quote": "I started as an agent in 2021 and now lead a team of eight. The training is real."}]
-            c.links = {"linkedin": "https://www.linkedin.com/"}
-            from .models import Assessment
-            test = Assessment(company_id=c.id, title="Customer support basics", time_limit_minutes=10, pass_score=60,
-                              instructions="Five questions about handling customers by chat and email. No outside help, please.",
-                              questions=[
-                                  {"text": "A customer was charged twice. What do you do first?", "options": ["Refund right away without replying", "Acknowledge the problem and apologise", "Ask them to call the bank"], "answer": 1},
-                                  {"text": "What does SLA mean?", "options": ["Service level agreement", "Sales lead account", "Support log archive"], "answer": 0},
-                                  {"text": "Best channel for long step-by-step instructions?", "options": ["Chat", "Email", "SMS"], "answer": 1},
-                                  {"text": "A customer writes in Tagalog. You should…", "options": ["Reply in English only", "Reply in Tagalog or Taglish if you can", "Transfer the ticket"], "answer": 1},
-                                  {"text": "When should you close a ticket?", "options": ["Right after replying", "When the customer confirms it's solved", "After 24 hours"], "answer": 1}])
-            s.add(test)
-            s.flush()
+        else:
+            member.role = "owner"
+        c.tagline = c.tagline or "Simple payment tools for small Philippine businesses"
+        c.size, c.founded = c.size or "51-200", c.founded or 2019
+        c.culture_values = c.culture_values or [
+            {"title": "Malasakit", "text": "We treat every merchant's problem like our own."},
+            {"title": "Bayanihan", "text": "Nobody ships alone. We help each other finish."},
+            {"title": "Tapat", "text": "We say what we know and what we don't."},
+        ]
+        c.testimonials = c.testimonials or [
+            {"name": "Liza M.", "role": "Support lead", "quote": "I started as an agent in 2021 and now lead a team of eight. The training is real."},
+        ]
+        c.links = c.links or {"linkedin": "https://www.linkedin.com/"}
+
+        if sample_jobs:
+            test = s.scalar(select(Assessment).where(
+                Assessment.company_id == c.id, Assessment.title == "Customer support basics"))
+            if test is None:
+                test = Assessment(
+                    company_id=c.id, title="Customer support basics", time_limit_minutes=10, pass_score=60,
+                    instructions="Five questions about handling customers by chat and email. No outside help, please.",
+                    questions=[
+                        {"text": "A customer was charged twice. What do you do first?", "options": ["Refund right away without replying", "Acknowledge the problem and apologise", "Ask them to call the bank"], "answer": 1},
+                        {"text": "What does SLA mean?", "options": ["Service level agreement", "Sales lead account", "Support log archive"], "answer": 0},
+                        {"text": "Best channel for long step-by-step instructions?", "options": ["Chat", "Email", "SMS"], "answer": 1},
+                        {"text": "A customer writes in Tagalog. You should...", "options": ["Reply in English only", "Reply in Tagalog or Taglish if you can", "Transfer the ticket"], "answer": 1},
+                        {"text": "When should you close a ticket?", "options": ["Right after replying", "When the customer confirms it's solved", "After 24 hours"], "answer": 1},
+                    ])
+                s.add(test)
+                s.flush()
+            existing_titles = set(s.scalars(select(Job.title).where(Job.company_id == c.id)))
             now = utcnow()
             for spec in DEMO_DIRECT_JOBS:
+                if spec["title"] in existing_titles:
+                    continue
                 extra = {}
                 if spec["title"].startswith("Customer Success"):
                     extra = dict(assessment_id=test.id, assessment_auto=True)
@@ -206,15 +268,19 @@ def load_demo_accounts() -> list[str]:
                 _apply_job_fields(job, body)
                 _publish(job, body)
                 s.flush()
-                from .common import job_path
                 job.paid_via = "admin"
                 job.url = job.apply_url = settings.public_url + job_path(job)
+            s.flush()
+            _demo_stats(s, c)
         s.commit()
-        _demo_stats(s, c)
-    return ["employer@demo.sinag  (Sinag Demo Corp, 3 Easy Apply jobs)",
+    if sample_jobs:
+        return ["employer@demo.sinag  (Sinag Demo Corp, 3 Easy Apply jobs)",
+                "seeker@demo.sinag    (profile filled in; upload a resume to apply)",
+                "admin@demo.sinag     (approve employers at /admin.html)",
+                "Sample analytics for the last 30 days (made-up numbers, for trying the charts)"]
+    return ["employer@demo.sinag  (Sinag Demo Corp; no sample listings)",
             "seeker@demo.sinag    (profile filled in; upload a resume to apply)",
-            "admin@demo.sinag     (approve employers at /admin.html)",
-            "Sample analytics for the last 30 days (made-up numbers, for trying the charts)"]
+            "admin@demo.sinag     (approve employers at /admin.html)"]
 
 
 def _demo_stats(s, company) -> None:
@@ -222,7 +288,6 @@ def _demo_stats(s, company) -> None:
     import random
     from datetime import date, timedelta
     from .analytics import today
-    from .models import DailyStat, Job
     if s.scalar(select(DailyStat.id).where(DailyStat.metric == "visit").limit(1)):
         return
     rnd = random.Random(7)

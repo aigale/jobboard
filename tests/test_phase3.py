@@ -368,10 +368,10 @@ def test_payment_pages_carry_test_notice_and_block_autofill():
     """Every page that takes or shows payment details shows the test notice, and card fields never invite saved cards."""
     from pathlib import Path
     static = Path(__file__).resolve().parent.parent / "static"
-    common = (static / "common.js").read_text()
+    common = (static / "common.js").read_text(encoding="utf-8")
     assert "This is a test environment. Do not enter real payment details." in common
-    checkout = (static / "checkout.html").read_text()
+    checkout = (static / "checkout.html").read_text(encoding="utf-8")
     assert "S.testBanner" in checkout and "cc-number" not in checkout and "cc-exp" not in checkout and "cc-csc" not in checkout
     assert 'id="tcn"' in checkout and 'autocomplete="off"' in checkout
     for page in ("employer.html", "admin.html"):
-        assert "S.testBanner" in (static / page).read_text()
+        assert "S.testBanner" in (static / page).read_text(encoding="utf-8")

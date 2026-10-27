@@ -18,18 +18,24 @@ Phase 3 adds billing with PayMongo, analytics, and SEO and XML/CSV imports.
 ```bash
 python -m venv .venv && source .venv/bin/activate      # Windows: .venv\Scripts\activate
 pip install -r requirements.txt
-python -m app.cli demo            # sample jobs + demo accounts
+python -m app.cli demo            # demo accounts; no fake listings
 uvicorn app.api:app --reload      # open http://localhost:8000
 ```
 
-The demo loads 12 crawled jobs from six fictional companies, plus three accounts to try the
-whole hiring flow. The password for all three is `sinag-demo-123`:
+The demo command creates three accounts and an approved demo company, but it does
+not add fake or sample jobs, so the board shows only real crawl and feed listings.
+The password for all three is `sinag-demo-123`:
 
 | Sign in as | To try |
 |---|---|
-| `seeker@demo.sinag` | Upload a resume, Easy Apply to "Customer Success Associate" and take its skills test; apply to "Python Backend Developer" and answer the follow-up chat |
-| `employer@demo.sinag` | Review applicants with test results and chat answers, search the resume database, edit the company page, invite a teammate |
+| `seeker@demo.sinag` | Upload a resume, browse real listings, and use Easy Apply on an employer-posted job |
+| `employer@demo.sinag` | Post a job, review applicants, search the resume database, edit the company page, invite a teammate |
 | `admin@demo.sinag` | Approve a new employer at `/admin.html` |
+
+For offline UI work, `python -m app.cli demo --sample-jobs` also loads 12 recorded
+jobs from six fictional companies and three Easy Apply jobs. That option is for
+local testing only. If an older database still has those sample listings, remove
+them with `python -m app.cli remove-demo-jobs`; real feed jobs are left alone.
 
 Emails aren't sent on your computer; read them with `python -m app.cli outbox`.
 

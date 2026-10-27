@@ -15,7 +15,7 @@
     document.body.insertAdjacentHTML("afterbegin", SPRITE);
   }
 
-  const COLORS = ["#0038A8", "#CE1126", "#B08C00", "#1C5FD6", "#8E0C1B", "#2B3A67", "#0F7C6E", "#6A3FB5"];
+  const COLORS = ["#0038A8", "#CE1126", "#8A6B00", "#1C5FD6", "#8E0C1B", "#2B3A67", "#0F7C6E", "#6A3FB5"];
   const S = {
     locale: () => (window.I18N && I18N.lang() === "tl") ? "fil-PH" : "en-PH",
     esc: s => String(s ?? "").replace(/[&<>"']/g, c => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[c])),

@@ -25,6 +25,7 @@ import httpx
 from fastapi import APIRouter, BackgroundTasks, Depends, HTTPException, Request
 from pydantic import BaseModel, Field
 from sqlalchemy import func, select
+from sqlalchemy.exc import IntegrityError
 from sqlalchemy.orm import Session
 
 from .auth import current_user, require_admin_user, require_employer, require_seeker
@@ -128,7 +129,14 @@ def ensure_products(db: Session) -> None:
         return
     for p in missing:
         db.add(Product(**{"limits": {}, "credits": 0, "days": 0, **p}))
-    db.commit()
+    try:
+        db.commit()
+    except IntegrityError:
+        # A page can ask for billing summary in parallel with another request on
+        # a fresh database. Both may read the same empty table and race to seed
+        # it. The winner's products are already there; keep the request alive
+        # instead of returning a 500 for a duplicate primary key.
+        db.rollback()
 
 
 def audience_of(p: Product) -> str:

@@ -3,8 +3,8 @@
   --flag-blue:#0038A8; --flag-red:#CE1126; --flag-gold:#FCD116; --flag-white:#FFFFFF;
   --bg:#F5F7FC; --surface:#FFFFFF; --surface-2:#EEF2FB;
   --fg:#101A36; --muted:#56607A; --line:#DCE2F0;
-  --accent:#0038A8; --accent-ink:#FFFFFF; --hot:#CE1126; --gold-ink:#5A4500;
-  --good:#127A4B;
+  --accent:#0038A8; --accent-ink:#FFFFFF; --hot:#B00E20; --gold-ink:#5A4500;
+  --good:#0D6B40;
   --shadow:0 1px 2px rgba(16,26,54,.06),0 8px 24px rgba(16,26,54,.06);
   --f-display:"Bricolage Grotesque","Segoe UI",system-ui,sans-serif;
   --f-body:"Figtree",system-ui,-apple-system,"Segoe UI",sans-serif;

@@ -1,0 +1,73 @@
+{
+ "jobs": [
+  {
+   "id": "7f3e-01",
+   "title": "Product Designer (UX/UI)",
+   "department": "Design",
+   "team": "Product",
+   "employmentType": "FullTime",
+   "location": "Taguig, Metro Manila",
+   "secondaryLocations": [],
+   "isListed": true,
+   "isRemote": false,
+   "workplaceType": "Hybrid",
+   "address": {
+    "postalAddress": {
+     "addressCountry": "Philippines",
+     "addressLocality": "Taguig"
+    }
+   },
+   "jobUrl": "https://jobs.ashbyhq.com/bayanipay/7f3e-01",
+   "applyUrl": "https://jobs.ashbyhq.com/bayanipay/7f3e-01/application",
+   "publishedAt": "{{ago:200}}",
+   "descriptionHtml": "<p>Design money tools used by millions of Filipinos. Hybrid in BGC.</p><p>HMO from day 1, 13th month, education allowance.</p>",
+   "descriptionPlain": "Design money tools used by millions of Filipinos. Hybrid in BGC.\n\nHMO from day 1, 13th month, education allowance.",
+   "compensation": {
+    "summaryComponents": [
+     {
+      "compensationType": "Salary",
+      "interval": "1 YEAR",
+      "currencyCode": "PHP",
+      "minValue": 1140000,
+      "maxValue": 1560000
+     }
+    ]
+   }
+  },
+  {
+   "id": "7f3e-02",
+   "title": "Junior Accountant",
+   "department": "Finance",
+   "team": "Finance",
+   "employmentType": "FullTime",
+   "location": "Davao City, Philippines",
+   "secondaryLocations": [],
+   "isListed": true,
+   "isRemote": false,
+   "workplaceType": "OnSite",
+   "address": {
+    "postalAddress": {
+     "addressCountry": "Philippines",
+     "addressLocality": "Davao City"
+    }
+   },
+   "jobUrl": "https://jobs.ashbyhq.com/bayanipay/7f3e-02",
+   "applyUrl": "https://jobs.ashbyhq.com/bayanipay/7f3e-02/application",
+   "publishedAt": "{{ago:25}}",
+   "descriptionHtml": "<p>CPA board passers and fresh graduates welcome. 13th month pay, rice subsidy.</p>",
+   "descriptionPlain": "CPA board passers and fresh graduates welcome. 13th month pay, rice subsidy.",
+   "compensation": {}
+  },
+  {
+   "id": "7f3e-03",
+   "title": "Unlisted test role",
+   "department": "Ops",
+   "employmentType": "FullTime",
+   "location": "Manila",
+   "isListed": false,
+   "jobUrl": "https://jobs.ashbyhq.com/bayanipay/7f3e-03",
+   "publishedAt": "{{ago:1}}",
+   "descriptionHtml": "<p>x</p>"
+  }
+ ]
+}

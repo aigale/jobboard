@@ -1,0 +1,42 @@
+# Companies to crawl. Copy this file to companies.yaml and replace the examples.
+#
+# How to find `key` from a company's careers page:
+#   greenhouse       boards.greenhouse.io/<key>  or  job-boards.greenhouse.io/<key>
+#   lever            jobs.lever.co/<key>          (add `options: {region: eu}` for jobs.eu.lever.co)
+#   ashby            jobs.ashbyhq.com/<key>
+#   workable         apply.workable.com/<key>
+#   smartrecruiters  jobs.smartrecruiters.com/<key>   (case-sensitive, e.g. "Acme1")
+#   jsonld           the full careers page URL, for any site that publishes schema.org JobPosting data
+#                    (most sites that show up in Google for Jobs do). If the listing page only links to
+#                    jobs, add options.job_link_pattern: a regex that matches the job page links.
+#
+# Optional fields: slug, careers_url, logo_url, verified (default true), active (default true).
+# Only jobs located in the Philippines or remote-open to the Philippines are kept.
+
+- name: Example Fintech PH
+  source: greenhouse
+  key: examplefintechph
+  careers_url: https://boards.greenhouse.io/examplefintechph
+
+- name: Example SaaS
+  source: lever
+  key: examplesaas
+
+- name: Example Startup
+  source: ashby
+  key: examplestartup
+
+- name: Example Agency
+  source: workable
+  key: example-agency
+
+- name: Example Hospital Group
+  source: smartrecruiters
+  key: ExampleHospitalGroup
+
+- name: Example Retail Corp
+  source: jsonld
+  key: https://careers.example.com.ph/jobs
+  options:
+    job_link_pattern: "/jobs/[0-9]+-[a-z0-9-]+$"
+    max_pages: 60

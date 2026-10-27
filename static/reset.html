@@ -1,0 +1,45 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Reset password · Sinag Jobs</title>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,600;12..96,800&family=Figtree:wght@400;500;600;700&family=IBM+Plex+Mono:wght@500&display=swap">
+<link rel="stylesheet" href="site.css">
+<link rel="manifest" href="/manifest.json">
+<link rel="icon" href="/icon-192.png">
+<meta name="theme-color" content="#0038A8">
+<meta name="referrer" content="no-referrer">
+</head>
+<body>
+<script src="common.js"></script>
+<script src="i18n.js"></script>
+<div class="tricolor"></div>
+<header class="top"><div class="wrap">
+  <a class="brand" href="/" aria-label="Sinag Jobs home"><svg viewBox="-60 -60 120 120" aria-hidden="true"><g fill="#FCD116"><use href="#ray"/><use href="#ray" transform="rotate(45)"/><use href="#ray" transform="rotate(90)"/><use href="#ray" transform="rotate(135)"/><use href="#ray" transform="rotate(180)"/><use href="#ray" transform="rotate(225)"/><use href="#ray" transform="rotate(270)"/><use href="#ray" transform="rotate(315)"/><circle r="18"/></g></svg>Sinag<b>Jobs</b></a>
+</div></header>
+<main class="wrap"><div class="auth-wrap">
+  <section class="panel">
+    <h1 style="font-size:28px;margin-bottom:6px">Choose a new password</h1>
+    <form id="f" style="display:flex;flex-direction:column;gap:14px;margin-top:14px">
+      <label class="f"><span>New password</span><input id="p1" type="password" minlength="8" autocomplete="new-password" required><small>At least 8 characters.</small></label>
+      <label class="f"><span>Repeat it</span><input id="p2" type="password" minlength="8" autocomplete="new-password" required></label>
+      <p class="err" id="err" hidden></p>
+      <button class="btn btn-blue" type="submit">Save password and sign in</button>
+    </form>
+  </section>
+</div></main>
+<script>
+const token = new URLSearchParams(location.search).get("token") || "";
+history.replaceState(null, "", location.pathname);   // keep the token out of history
+document.getElementById("f").addEventListener("submit", async e => {
+  e.preventDefault();
+  const err = document.getElementById("err"); err.hidden = true;
+  const p1 = document.getElementById("p1").value, p2 = document.getElementById("p2").value;
+  if (p1 !== p2) { err.textContent = "The two passwords don't match."; err.hidden = false; return; }
+  try { const u = await S.api("/auth/reset", { method: "POST", body: { token, password: p1 } }); location.href = S.home(u); }
+  catch (x) { err.textContent = x.message; err.hidden = false; }
+});
+</script>
+</body>
+</html>

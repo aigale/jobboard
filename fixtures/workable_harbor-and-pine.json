@@ -1,0 +1,51 @@
+{
+ "name": "Harbor & Pine Realty",
+ "jobs": [
+  {
+   "title": "Executive Virtual Assistant (US Real Estate)",
+   "shortcode": "HP0001",
+   "employment_type": "Full-time",
+   "telecommuting": true,
+   "department": "Operations",
+   "url": "https://apply.workable.com/harbor-and-pine/j/HP0001/",
+   "application_url": "https://apply.workable.com/harbor-and-pine/j/HP0001/apply",
+   "published_on": "{{date:0}}",
+   "created_at": "{{date:0}}",
+   "country": "Philippines",
+   "city": "",
+   "state": "",
+   "locations": [
+    {
+     "country": "Philippines",
+     "countryCode": "PH",
+     "city": "",
+     "region": ""
+    }
+   ],
+   "description": "<p>Support our brokers in Florida. Work EST hours from home.</p><p>Pay: $5 - $7 per hour. Paid time off.</p>"
+  },
+  {
+   "title": "Leasing Agent",
+   "shortcode": "HP0002",
+   "employment_type": "Full-time",
+   "telecommuting": false,
+   "department": "Sales",
+   "url": "https://apply.workable.com/harbor-and-pine/j/HP0002/",
+   "application_url": "https://apply.workable.com/harbor-and-pine/j/HP0002/apply",
+   "published_on": "{{date:1}}",
+   "created_at": "{{date:1}}",
+   "country": "United States",
+   "city": "Miami",
+   "state": "Florida",
+   "locations": [
+    {
+     "country": "United States",
+     "countryCode": "US",
+     "city": "Miami",
+     "region": "Florida"
+    }
+   ],
+   "description": "<p>In office.</p>"
+  }
+ ]
+}

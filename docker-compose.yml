@@ -1,0 +1,81 @@
+# Production setup: Caddy (HTTPS) + website/API + crawler worker + Postgres.
+#   cp .env.example .env                        (set DOMAIN, ADMIN_TOKEN, POSTGRES_PASSWORD)
+#   companies.yaml lists the companies to crawl (comes from GitHub)
+#   docker compose up -d --build
+
+# Fixed project name: the database volume stays the same whatever the folder is called.
+name: sinag-backend
+
+services:
+  caddy:
+    image: caddy:2
+    ports:
+      - "80:80"
+      - "443:443"
+      - "443:443/udp"
+    environment:
+      DOMAIN: ${DOMAIN:-localhost}
+    volumes:
+      - ./Caddyfile:/etc/caddy/Caddyfile:ro
+      - caddy_data:/data
+      - caddy_config:/config
+    depends_on:
+      - api
+    restart: unless-stopped
+
+  db:
+    image: postgres:16-alpine
+    environment:
+      POSTGRES_USER: sinag
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-sinag}
+      POSTGRES_DB: sinag
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U sinag"]
+      interval: 5s
+      retries: 10
+    restart: unless-stopped
+
+  api:
+    build: .
+    env_file: .env
+    environment:
+      DATABASE_URL: postgresql+psycopg://sinag:${POSTGRES_PASSWORD:-sinag}@db:5432/sinag
+      COMPANIES_FILE: /srv/companies.yaml
+      UPLOAD_DIR: /srv/uploads
+    volumes:
+      - ./companies.yaml:/srv/companies.yaml:ro
+      - uploads:/srv/uploads
+      # Optional private files, e.g. the Firebase key for phone app push (FCM_SERVICE_ACCOUNT_FILE=/srv/secrets/fcm.json)
+      - ./secrets:/srv/secrets:ro
+    # Only reachable from the server itself; the public reaches it through Caddy.
+    ports:
+      - "127.0.0.1:8000:8000"
+    depends_on:
+      db:
+        condition: service_healthy
+    restart: unless-stopped
+
+  worker:
+    build: .
+    command: ["python", "-m", "app.worker"]
+    env_file: .env
+    environment:
+      DATABASE_URL: postgresql+psycopg://sinag:${POSTGRES_PASSWORD:-sinag}@db:5432/sinag
+      COMPANIES_FILE: /srv/companies.yaml
+    volumes:
+      - ./companies.yaml:/srv/companies.yaml:ro
+      - ./secrets:/srv/secrets:ro
+    depends_on:
+      db:
+        condition: service_healthy
+      api:
+        condition: service_started
+    restart: unless-stopped
+
+volumes:
+  pgdata:
+  uploads:      # resumes, certificates and portfolios job seekers upload
+  caddy_data:
+  caddy_config:

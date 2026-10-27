@@ -1,0 +1,240 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="description" content="Fresh, verified jobs in the Philippines, collected from company career pages minutes after they are posted.">
+<title>Sinag Jobs</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,600;12..96,800&family=Figtree:wght@400;500;600;700&family=IBM+Plex+Mono:wght@500&display=swap">
+<link rel="stylesheet" href="site.css">
+<link rel="manifest" href="/manifest.json">
+<link rel="icon" href="/icon-192.png">
+<meta name="theme-color" content="#0038A8">
+
+</head>
+<body>
+<script src="common.js"></script>
+<script src="i18n.js"></script>
+
+<div class="tricolor"></div>
+<header class="top">
+  <div class="wrap">
+    <a class="brand" href="#top" aria-label="Sinag Jobs home">
+      <svg viewBox="-60 -60 120 120" aria-hidden="true">
+        <g fill="#FCD116">
+          <use href="#ray"/><use href="#ray" transform="rotate(45)"/><use href="#ray" transform="rotate(90)"/><use href="#ray" transform="rotate(135)"/>
+          <use href="#ray" transform="rotate(180)"/><use href="#ray" transform="rotate(225)"/><use href="#ray" transform="rotate(270)"/><use href="#ray" transform="rotate(315)"/>
+          <circle r="18"/>
+        </g>
+      </svg>
+      Sinag<b>Jobs</b>
+    </a>
+    <nav class="links">
+      <a href="#board" class="hide-sm">Browse jobs</a>
+      <a href="#how" class="hide-sm">How it works</a>
+      <a href="#alerts" class="hide-sm">Job alerts</a>
+      <span class="account" id="account"></span>
+    </nav>
+  </div>
+</header>
+
+<main id="top">
+  <section class="hero">
+    <svg class="sun" viewBox="-60 -60 120 120" aria-hidden="true">
+      <g class="rays" fill="#FCD116">
+        <use href="#ray"/><use href="#ray" transform="rotate(45)"/><use href="#ray" transform="rotate(90)"/><use href="#ray" transform="rotate(135)"/>
+        <use href="#ray" transform="rotate(180)"/><use href="#ray" transform="rotate(225)"/><use href="#ray" transform="rotate(270)"/><use href="#ray" transform="rotate(315)"/>
+      </g>
+      <circle r="18" fill="#FCD116"/>
+    </svg>
+    <svg class="star" viewBox="-11 -11 22 22" style="left:14px;top:14px" aria-hidden="true"><use href="#star5" fill="#FCD116"/></svg>
+    <svg class="star" viewBox="-11 -11 22 22" style="left:14px;bottom:14px" aria-hidden="true"><use href="#star5" fill="#FCD116"/></svg>
+    <svg class="star" viewBox="-11 -11 22 22" style="left:calc(min(46%,520px) - 52px);top:calc(50% - 14px)" aria-hidden="true"><use href="#star5" fill="#FCD116"/></svg>
+
+    <div class="wrap hero-inner">
+      <div>
+        <p class="eyebrow" style="color:var(--flag-gold)">Para sa bawat Pilipino</p>
+        <h1>Trabahong <em>bago pa</em> sa iba. Jobs in the Philippines, found first.</h1>
+        <p class="lead">We pull fresh openings straight from company career pages across Luzon, Visayas and Mindanao, and from global teams hiring Filipinos remotely. Apply before the crowd does.</p>
+        <form class="search" id="heroSearch" role="search">
+          <label class="field"><svg aria-hidden="true"><use href="#i-search"/></svg>
+            <input id="q" type="search" placeholder="Job title, skill or company" aria-label="Job title, skill or company"></label>
+          <label class="field"><svg aria-hidden="true"><use href="#i-pin"/></svg>
+            <select id="loc" aria-label="Location">
+              <option value="">All of the Philippines</option>
+            </select></label>
+          <button class="btn btn-red" type="submit">Find jobs</button>
+        </form>
+        <div class="trust">
+          <span><svg aria-hidden="true"><use href="#i-check"/></svg>Verified employers only</span>
+          <span><svg aria-hidden="true"><use href="#i-check"/></svg>Salary shown in pesos</span>
+          <span><svg aria-hidden="true"><use href="#i-check"/></svg>No placement fees, no scams</span>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <div class="ribbon"><div class="wrap">
+    <div class="stat"><b id="statJobs">–</b><span>open jobs right now</span></div>
+    <div class="stat"><b id="statCompanies">–</b><span>companies hiring</span></div>
+    <div class="stat"><b>Every 15 min</b><span>career pages checked</span></div>
+    <div class="stat"><b id="statUpdated">–</b><span>last update</span></div>
+  </div></div>
+
+  <div class="wrap board" id="board">
+    <aside class="filters" aria-label="Filters">
+      <div class="fgroup">
+        <h3>Work setup</h3>
+        <div class="opts" id="fSetup"></div>
+      </div>
+      <div class="fgroup">
+        <h3>Job type</h3>
+        <div class="opts" id="fType"></div>
+      </div>
+      <div class="fgroup">
+        <h3>Shift</h3>
+        <div class="opts" id="fShift"></div>
+      </div>
+      <div class="fgroup">
+        <h3>Experience</h3>
+        <div class="opts" id="fLevel"></div>
+      </div>
+      <div class="fgroup">
+        <h3>Industry</h3>
+        <div class="opts" id="fIndustry"></div>
+      </div>
+      <div class="fgroup">
+        <h3>Monthly pay</h3>
+        <div class="split">
+          <label class="f"><small>From</small><select id="minPay" class="input"><option value="0">Any</option></select></label>
+          <label class="f"><small>Up to</small><select id="maxPay" class="input"><option value="0">Any</option></select></label>
+        </div>
+      </div>
+      <div class="fgroup">
+        <h3>Benefits</h3>
+        <div class="opts" id="fPerks"></div>
+      </div>
+      <label class="opt"><input type="checkbox" id="easyOnly"> Easy Apply jobs only <small id="easyCount"></small></label>
+      <label class="opt"><input type="checkbox" id="savedOnly"> Show saved jobs only</label>
+      <button class="linkbtn" id="reset" type="button">Clear all filters</button>
+    </aside>
+
+    <section aria-labelledby="feedTitle" style="min-width:0">
+      <div class="feed-head">
+        <div>
+          <span class="pulse">Live feed</span>
+          <h2 id="feedTitle">Posted in the last few hours</h2>
+          <p id="resultCount">Loading jobs…</p>
+        </div>
+        <label>
+          <span class="eyebrow" style="color:var(--muted);display:block;margin-bottom:4px">Sort by</span>
+          <select class="sortsel" id="sort">
+            <option value="new">Newest first</option>
+            <option value="pay">Highest pay</option>
+          </select>
+        </label>
+      </div>
+      <div class="chips" id="cats" role="group" aria-label="Job categories"></div>
+      <div class="jobs" id="jobs"></div>
+      <button class="btn btn-ghost more" id="more" type="button" hidden>Show more jobs</button>
+    </section>
+  </div>
+
+  <section class="band" id="how" style="background:var(--surface-2)">
+    <div class="wrap">
+      <p class="eyebrow">How we find jobs first</p>
+      <h2 style="font-size:clamp(28px,3.6vw,42px);margin-top:6px">From a company's careers page to your phone in minutes.</h2>
+      <div class="how">
+        <div><span class="n" style="background:var(--flag-blue)">1</span><h3>We scan the source</h3><p>Our crawler checks thousands of Philippine and global career pages around the clock, from BGC startups to Cebu IT parks.</p></div>
+        <div><span class="n" style="background:var(--flag-red)">2</span><h3>We check every employer</h3><p>Crawled jobs come straight from each company's own careers page. Employers who post here are reviewed by our team before their jobs go live, and listings that ask for placement fees are removed.</p></div>
+        <div><span class="n" style="background:#B08C00">3</span><h3>You apply early</h3><p>Get an alert the moment a matching job lands, and send your application while the shortlist is still short.</p></div>
+      </div>
+    </div>
+  </section>
+
+  <section class="band">
+    <div class="wrap">
+      <p class="eyebrow">Why Sinag</p>
+      <h2 style="font-size:clamp(28px,3.6vw,42px);margin-top:6px">Built for how Filipinos actually job hunt.</h2>
+      <div class="compare-wrap">
+        <table>
+          <thead><tr><th>Feature</th><th class="us" style="text-align:center">Sinag Jobs</th><th style="text-align:center">Typical job boards</th></tr></thead>
+          <tbody>
+            <tr><td>Jobs listed minutes after they go live</td><td class="c yes">Yes</td><td class="c no">No</td></tr>
+            <tr><td>Salary range in pesos on every listing</td><td class="c yes">Yes</td><td class="c no">Rarely</td></tr>
+            <tr><td>Filter by night shift / US hours</td><td class="c yes">Yes</td><td class="c no">No</td></tr>
+            <tr><td>Shows HMO, 13th month and night differential up front</td><td class="c yes">Yes</td><td class="c no">No</td></tr>
+            <tr><td>Placement-fee and scam recruiters removed</td><td class="c yes">Yes</td><td class="c no">Not always</td></tr>
+            <tr><td>Remote roles from foreign companies hiring in PH</td><td class="c yes">Yes</td><td class="c no">Mixed in</td></tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </section>
+
+  <section class="wrap" id="alerts">
+    <div class="alerts">
+      <div>
+        <h2>Huwag nang maunahan. Get job alerts.</h2>
+        <p>Tell us what you're looking for and we'll email you new matches every morning at 8 AM Manila time. With a free account you can also get instant alerts for jobs that match your profile.</p>
+      </div>
+      <form id="alertForm">
+        <input id="alertEmail" type="email" required placeholder="your@email.com" aria-label="Email address">
+        <select id="alertCat" aria-label="Job category"></select>
+        <button class="btn btn-gold" type="submit">Send me alerts</button>
+      </form>
+    </div>
+  </section>
+
+  <section class="band" id="post">
+    <div class="wrap" style="display:grid;grid-template-columns:minmax(0,1fr);gap:40px">
+      <div style="display:flex;flex-wrap:wrap;gap:20px;align-items:center;justify-content:space-between;background:var(--surface);border:1px solid var(--line);border-radius:18px;padding:28px">
+        <div style="max-width:56ch">
+          <p class="eyebrow">For employers</p>
+          <h2 style="font-size:clamp(24px,3vw,32px);margin-top:6px">Hiring in the Philippines?</h2>
+          <p style="color:var(--muted);margin:8px 0 0">Post jobs for free during our launch. Candidates apply right here with their profile and resume, and you review them on one board: shortlist, interview, hire.</p>
+        </div>
+        <a class="btn btn-blue" href="/login.html?role=employer#signup">Post a job</a>
+      </div>
+
+      <div>
+        <p class="eyebrow">Frequently asked</p>
+        <h2 style="font-size:clamp(26px,3.4vw,38px);margin-top:6px">Questions from job seekers</h2>
+        <div class="faq">
+          <details open><summary>How is this different from JobStreet or LinkedIn?</summary><p>Most boards wait for employers to post. We go to each company's own careers page and list new roles within minutes, so you see them before they spread to other sites.</p></details>
+          <details><summary>Do I need to pay to apply?</summary><p>No. Applying is always free. Legitimate employers never charge placement or processing fees. If anyone asks you for money, report the listing and we'll remove it.</p></details>
+          <details><summary>Are the remote jobs open to people living in the Philippines?</summary><p>Yes. Every remote job here has been checked to confirm the company hires Philippine-based workers, either as employees or contractors.</p></details>
+          <details><summary>What does "night shift" mean on a listing?</summary><p>The role follows US, UK or Australian business hours. These jobs usually include a night differential of at least 10% under the Labor Code.</p></details>
+          <details><summary>Can fresh graduates find jobs here?</summary><p>Yes. Use the Entry level filter to see roles that accept fresh grads and career shifters, including many with paid training.</p></details>
+        </div>
+      </div>
+    </div>
+  </section>
+</main>
+
+<footer>
+  <div class="wrap">
+    <div class="cols">
+      <div>
+        <a class="brand" href="#top"><svg viewBox="-60 -60 120 120" aria-hidden="true"><g fill="#FCD116"><use href="#ray"/><use href="#ray" transform="rotate(45)"/><use href="#ray" transform="rotate(90)"/><use href="#ray" transform="rotate(135)"/><use href="#ray" transform="rotate(180)"/><use href="#ray" transform="rotate(225)"/><use href="#ray" transform="rotate(270)"/><use href="#ray" transform="rotate(315)"/><circle r="18"/></g></svg>Sinag<b style="color:#FF6B7D">Jobs</b></a>
+        <p style="font-size:14px;margin:12px 0 0;max-width:34ch">Fresh, verified jobs for Filipinos, at home and from anywhere.</p>
+      </div>
+      <div><h4>Jobs by location</h4><ul><li><a href="#board" data-loc="Metro Manila">Metro Manila</a></li><li><a href="#board" data-loc="Cebu">Cebu</a></li><li><a href="#board" data-loc="Davao">Davao</a></li><li><a href="#board" data-loc="Iloilo">Iloilo</a></li><li><a href="#board" data-loc="Remote (PH-based)">Remote (PH-based)</a></li></ul></div>
+      <div><h4>Popular searches</h4><ul><li><a href="#board" data-q="Virtual Assistant">Virtual assistant</a></li><li><a href="#board" data-q="Customer">Customer support</a></li><li><a href="#board" data-q="Developer">Software developer</a></li><li><a href="#board" data-q="Nurse">Nursing</a></li><li><a href="#board" data-q="Accountant">Accounting</a></li></ul></div>
+      <div><h4>Resources</h4><ul><li><a href="#how">How it works</a></li><li><a href="#alerts">Job alerts</a></li><li><a href="#post">Post a job</a></li><li><a href="/login.html">Sign in</a></li><li><a href="/privacy.html">Privacy notice</a></li></ul></div>
+    </div>
+    <div class="fine"><span>© 2026 Sinag Jobs. Gawa sa Pilipinas.</span><span>Report a suspicious listing: report@sinagjobs.ph</span></div>
+  </div>
+</footer>
+
+<div class="scrim" id="scrim" hidden>
+  <div class="modal" role="dialog" aria-modal="true" aria-labelledby="mTitle" id="modal"></div>
+</div>
+<div class="toast" id="toast" role="status" hidden></div>
+
+<script src="app.js"></script>
+
+</body>
+</html>

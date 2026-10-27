@@ -1,0 +1,146 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Sign in · Sinag Jobs</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,600;12..96,800&family=Figtree:wght@400;500;600;700&family=IBM+Plex+Mono:wght@500&display=swap">
+<link rel="stylesheet" href="site.css">
+<link rel="manifest" href="/manifest.json">
+<link rel="icon" href="/icon-192.png">
+<meta name="theme-color" content="#0038A8">
+</head>
+<body>
+<script src="common.js"></script>
+<script src="i18n.js"></script>
+<div class="tricolor"></div>
+<header class="top"><div class="wrap">
+  <a class="brand" href="/" aria-label="Sinag Jobs home"><svg viewBox="-60 -60 120 120" aria-hidden="true"><g fill="#FCD116"><use href="#ray"/><use href="#ray" transform="rotate(45)"/><use href="#ray" transform="rotate(90)"/><use href="#ray" transform="rotate(135)"/><use href="#ray" transform="rotate(180)"/><use href="#ray" transform="rotate(225)"/><use href="#ray" transform="rotate(270)"/><use href="#ray" transform="rotate(315)"/><circle r="18"/></g></svg>Sinag<b>Jobs</b></a>
+  <nav class="links"><a href="/" class="hide-xs">Browse jobs</a></nav>
+</div></header>
+
+<main class="wrap">
+  <div class="auth-wrap">
+    <div class="tabs" role="tablist" aria-label="Account">
+      <button role="tab" data-tab="signin" aria-controls="pSignin" id="tSignin" aria-selected="true">Sign in</button>
+      <button role="tab" data-tab="signup" aria-controls="pSignup" id="tSignup" aria-selected="false">Create account</button>
+    </div>
+
+    <section id="pSignin" role="tabpanel" aria-labelledby="tSignin" class="panel">
+      <h1 style="font-size:28px;margin-bottom:6px">Welcome back</h1>
+      <p class="hint" style="margin:0 0 18px">Sign in to apply, track your applications, or manage your job posts.</p>
+      <div class="social" id="socialIn" hidden></div>
+      <form id="signinForm" style="display:flex;flex-direction:column;gap:14px">
+        <label class="f"><span>Email</span><input id="siEmail" type="email" autocomplete="email" required></label>
+        <label class="f"><span>Password</span><input id="siPass" type="password" autocomplete="current-password" required></label>
+        <p class="err" id="siErr" hidden></p>
+        <button class="btn btn-blue" type="submit">Sign in</button>
+        <button class="linkbtn" type="button" id="forgotLink">Forgot your password?</button>
+      </form>
+      <form id="forgotForm" hidden style="display:flex;flex-direction:column;gap:14px;margin-top:18px;border-top:1px solid var(--line);padding-top:18px">
+        <label class="f"><span>Email for your reset link</span><input id="fgEmail" type="email" autocomplete="email" required></label>
+        <button class="btn btn-ghost" type="submit">Send reset link</button>
+        <p class="hint" id="fgMsg" hidden></p>
+      </form>
+    </section>
+
+    <section id="pSignup" role="tabpanel" aria-labelledby="tSignup" class="panel" hidden>
+      <h1 style="font-size:28px;margin-bottom:6px">Create your free account</h1>
+      <p class="hint" style="margin:0 0 18px">Takes a minute. No fees for job seekers, ever.</p>
+      <div id="socialUpWrap" hidden><div class="social" id="socialUp"></div>
+        <p class="hint" style="margin:-6px 0 12px;font-size:13px">Pick job seeker or employer below first. Continuing means you agree to our <a href="/privacy.html">privacy notice</a>.</p>
+        <div class="or">or with email</div></div>
+      <form id="signupForm" style="display:flex;flex-direction:column;gap:14px">
+        <div class="role-pick" role="radiogroup" aria-label="Account type">
+          <label><input type="radio" name="role" value="seeker" id="roleSeeker" checked><b>I'm looking for work</b><small>Build a profile, Easy Apply, track applications</small></label>
+          <label><input type="radio" name="role" value="employer" id="roleEmployer"><b>I'm hiring</b><small>Post jobs and review applicants on one board</small></label>
+        </div>
+        <label class="f"><span>Full name</span><input id="suName" autocomplete="name" required maxlength="200"></label>
+        <label class="f"><span>Email</span><input id="suEmail" type="email" autocomplete="email" required></label>
+        <label class="f"><span>Password</span><input id="suPass" type="password" autocomplete="new-password" minlength="8" required><small>At least 8 characters.</small></label>
+        <label class="opt" style="align-items:flex-start"><input type="checkbox" id="suConsent" required style="margin-top:4px"> <span>I agree to the <a href="/privacy.html" target="_blank" rel="noopener">privacy notice</a> and allow Sinag Jobs to process my information to run my account<span id="consentExtra">, and to share my profile with employers I apply to</span>.</span></label>
+        <p class="err" id="suErr" hidden></p>
+        <button class="btn btn-red" type="submit">Create account</button>
+      </form>
+    </section>
+  </div>
+</main>
+
+<script>
+(async () => {
+  const $ = id => document.getElementById(id);
+  const params = new URLSearchParams(location.search);
+  const next = params.get("next");
+  const safeNext = next && next.startsWith("/") && !next.startsWith("//") ? next : null;
+  const go = user => { location.href = safeNext || S.home(user); };
+
+  if (params.get("verify") === "expired") {
+    document.querySelector(".auth-wrap").insertAdjacentHTML("afterbegin", `<div class="notice warn" style="margin-bottom:16px">That confirmation link has expired or was already used. Sign in and we'll show a button to send a new one.</div>`);
+  }
+  const OAUTH_ERRORS = {
+    cancelled: "Sign-in was cancelled.", expired: "That sign-in took too long or was opened in another browser. Try again.",
+    provider: "We couldn't reach that sign-in service. Try again, or use your email and password.",
+    no_email: "That account didn't share an email address with us. Use another option, or sign up with your email.",
+    unverified_email: "That account's email isn't verified yet, so we can't link it. Sign in with your password instead.",
+    admin: "Admin accounts sign in with a password.", disabled: "This account is switched off.",
+    linked_elsewhere: "That account is already linked to a different Sinag Jobs account.", not_configured: "That sign-in option isn't set up."
+  };
+  const oe = params.get("oauth_error");
+  if (oe) document.querySelector(".auth-wrap").insertAdjacentHTML("afterbegin", `<div class="notice warn" style="margin-bottom:16px" role="alert">${S.esc(OAUTH_ERRORS[oe] || "Sign-in didn't work. Try again.")}</div>`);
+  const existing = await S.me();
+  if (existing) { go(existing); return; }
+  try {
+    const providers = await S.api("/auth/providers");
+    if (providers.length) {
+      const href = (p, role) => `/api/auth/oauth/${p.id}/start?role=${role}${safeNext ? "&next=" + encodeURIComponent(safeNext) : ""}`;
+      $("socialIn").innerHTML = providers.map(p => `<a href="${href(p, "seeker")}">Continue with ${S.esc(p.name)}</a>`).join("")
+        + `<p class="hint" style="margin:0;font-size:13px">New here? This creates a job seeker account, and continuing means you agree to our <a href="/privacy.html">privacy notice</a>. Hiring? Use Create account.</p><div class="or">or</div>`;
+      $("socialIn").hidden = false;
+      $("socialUp").innerHTML = providers.map(p => `<a href="#" data-prov="${p.id}">Sign up with ${S.esc(p.name)}</a>`).join("");
+      $("socialUpWrap").hidden = false;
+      $("socialIn").addEventListener("click", e => {          // in the phone app, sign in through the phone's browser
+        const a = e.target.closest("a[href^='/api/auth/oauth/']"); if (!a || !S.native()) return;
+        e.preventDefault(); S.nativeSocial(a.getAttribute("href"));
+      });
+      $("socialUp").addEventListener("click", e => {
+        const a = e.target.closest("[data-prov]"); if (!a) return; e.preventDefault();
+        const to = href({ id: a.dataset.prov }, $("roleEmployer").checked ? "employer" : "seeker");
+        if (S.native()) S.nativeSocial(to); else location.href = to;
+      });
+    }
+  } catch (e) { /* buttons stay hidden */ }
+
+  const show = S.tabs(document.querySelector("[role=tablist]"));
+  show(location.hash === "#signup" ? "signup" : "signin");
+  if (params.get("role") === "employer") { $("roleEmployer").checked = true; }
+  const syncConsent = () => { $("consentExtra").hidden = !$("roleSeeker").checked; };
+  document.querySelectorAll("input[name=role]").forEach(r => r.addEventListener("change", syncConsent)); syncConsent();
+
+  $("signinForm").addEventListener("submit", async e => {
+    e.preventDefault(); $("siErr").hidden = true;
+    const b = e.submitter; b.disabled = true;
+    try { go(await S.api("/auth/login", { method: "POST", body: { email: $("siEmail").value, password: $("siPass").value } })); }
+    catch (err) { $("siErr").textContent = err.message; $("siErr").hidden = false; b.disabled = false; }
+  });
+  $("forgotLink").onclick = () => { $("forgotForm").hidden = false; $("fgEmail").value = $("siEmail").value; $("fgEmail").focus(); };
+  $("forgotForm").addEventListener("submit", async e => {
+    e.preventDefault();
+    try { $("fgMsg").textContent = (await S.api("/auth/forgot", { method: "POST", body: { email: $("fgEmail").value } })).message; }
+    catch (err) { $("fgMsg").textContent = err.message; }
+    $("fgMsg").hidden = false;
+  });
+  $("signupForm").addEventListener("submit", async e => {
+    e.preventDefault(); $("suErr").hidden = true;
+    const b = e.submitter; b.disabled = true;
+    const role = document.querySelector("input[name=role]:checked").value;
+    try {
+      const user = await S.api("/auth/signup", { method: "POST", body: { name: $("suName").value, email: $("suEmail").value, password: $("suPass").value, role, consent: $("suConsent").checked } });
+      location.href = safeNext || (role === "seeker" ? "/seeker.html#profile" : "/employer.html#company");
+    } catch (err) { $("suErr").textContent = err.message; $("suErr").hidden = false; b.disabled = false; }
+  });
+})();
+</script>
+</body>
+</html>

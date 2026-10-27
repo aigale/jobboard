@@ -1,0 +1,4 @@
+# Store text files with Linux line endings so files edited on Windows run correctly on the server.
+* text=auto eol=lf
+*.png binary
+*.jpg binary

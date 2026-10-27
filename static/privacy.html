@@ -1,0 +1,63 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Privacy notice · Sinag Jobs</title>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,600;12..96,800&family=Figtree:wght@400;500;600;700&family=IBM+Plex+Mono:wght@500&display=swap">
+<link rel="stylesheet" href="site.css">
+<link rel="manifest" href="/manifest.json">
+<link rel="icon" href="/icon-192.png">
+<meta name="theme-color" content="#0038A8">
+</head>
+<body>
+<script src="common.js"></script>
+<script src="i18n.js"></script>
+<div class="tricolor"></div>
+<header class="top"><div class="wrap">
+  <a class="brand" href="/" aria-label="Sinag Jobs home"><svg viewBox="-60 -60 120 120" aria-hidden="true"><g fill="#FCD116"><use href="#ray"/><use href="#ray" transform="rotate(45)"/><use href="#ray" transform="rotate(90)"/><use href="#ray" transform="rotate(135)"/><use href="#ray" transform="rotate(180)"/><use href="#ray" transform="rotate(225)"/><use href="#ray" transform="rotate(270)"/><use href="#ray" transform="rotate(315)"/><circle r="18"/></g></svg>Sinag<b>Jobs</b></a>
+  <nav class="links"><span class="account" id="account"></span></nav>
+</div></header>
+<main class="wrap page prose" style="max-width:760px" translate="no">
+  <div id="langNote"></div>
+  <!-- TEMPLATE: complete the [bracketed] parts and have this notice reviewed before launch. -->
+  <div class="notice warn" style="margin-bottom:24px"><b>Draft notice.</b> The site owner must complete the bracketed details and have this reviewed for compliance with the Data Privacy Act of 2012 before launch.</div>
+  <h1 style="font-size:36px;margin-bottom:12px">Privacy notice</h1>
+  <p>Sinag Jobs is run by [registered business name], [business address]. This notice explains what personal information we collect, why, and your rights under the Data Privacy Act of 2012 (Republic Act No. 10173).</p>
+  <h2 style="font-size:22px;margin:24px 0 8px">What we collect</h2>
+  <ul>
+    <li><b>Account details:</b> your name, email address and password (stored only as a scrambled hash).</li>
+    <li><b>Job seeker profile:</b> headline, phone number, location, skills, experience, salary expectations, and the files you upload (resumes, certificates, portfolios).</li>
+    <li><b>Applications:</b> the jobs you apply to, your answers to screening questions, your cover letter, and status updates from employers.</li>
+    <li><b>Employer details:</b> company name, industry, website and the jobs you post.</li>
+    <li><b>Job alerts:</b> your email address and the filters you choose.</li>
+    <li><b>Screening:</b> your answers to employers' skills tests and follow-up chats.</li>
+    <li><b>Push notifications:</b> if you turn them on, a technical address for your browser or phone so we can send them.</li>
+    <li><b>Messages and interviews:</b> messages between you and an employer about an application, and the interview times offered and chosen.</li>
+    <li><b>Social sign-in:</b> if you sign in with Google, Facebook or LinkedIn, we receive your name, email address and an account ID from that service. We don't get your password or post anything for you.</li>
+    <li><b>Purchases:</b> what you bought, when, and the invoice details you give (name, address, TIN). Payments on this site are currently test payments; we never store card numbers.</li>
+    <li><b>Language:</b> the site language you pick.</li>
+  </ul>
+  <h2 style="font-size:22px;margin:24px 0 8px">Why we use it</h2>
+  <p>To run your account, send your application to the employer you choose, show you matching jobs, and email you the alerts and updates you asked for. We don't sell your information.</p>
+  <h2 style="font-size:22px;margin:24px 0 8px">Who sees it</h2>
+  <p>When you apply to a job, that employer's team sees your profile, answers, test results, chat answers and the files you attach.</p>
+  <p>If you switch on <b>Let verified employers find me</b>, verified employers can search for you and see your name, headline, skills, location, experience, expected pay and your latest resume. Your email and phone stay hidden until you apply. You can switch this off at any time.</p>
+  <p>If an employer uses AI features, your application text and chat answers are sent to Anthropic (the Claude API) to run the follow-up chat or write a summary for the employer. The AI doesn't make hiring decisions. [Confirm your agreement with Anthropic covers this use and state where data is processed.]</p>
+  <p>Messages about an application are seen by you and that employer's team.</p>
+  <p>Our email provider ([provider name]) and hosting provider ([provider name]) process data on our behalf. Phone app notifications go through Google Firebase Cloud Messaging (and Apple's push service on iPhone). When payments go live, the payment provider ([provider name]) handles card and e-wallet details directly.</p>
+  <h2 style="font-size:22px;margin:24px 0 8px">How long we keep it</h2>
+  <p>Until you delete your account. Deleting your account removes your profile, files, applications, messages, interviews and alerts. Purchase records may be kept longer where tax law requires.</p>
+  <h2 style="font-size:22px;margin:24px 0 8px">Your rights</h2>
+  <p>You can see and correct your information in your account, download your files, and delete your account at any time. To ask about your data or file a complaint, contact our Data Protection Officer at [email address]. You can also contact the National Privacy Commission.</p>
+  <p class="hint">Last updated: [date]</p>
+</main>
+<script>S.renderAccount(document.getElementById("account"));</script>
+<script>
+// The privacy notice is a legal text: it stays in English until a reviewed translation exists.
+if (window.I18N && I18N.lang() !== "en") document.getElementById("langNote").innerHTML = I18N.lang() === "tl"
+  ? '<div class="notice" style="margin-bottom:16px">Nasa Ingles ang privacy notice na ito. Legal na dokumento ito, kaya ang bersyong Ingles ang masusunod hanggang may opisyal na salin.</div>'
+  : '<div class="notice" style="margin-bottom:16px">Naa sa English kini nga privacy notice. Legal kini nga dokumento, busa ang English nga bersyon ang sundon hangtod adunay opisyal nga hubad.</div>';
+</script>
+</body>
+</html>

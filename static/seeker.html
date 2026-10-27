@@ -1,0 +1,435 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>My account · Sinag Jobs</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,600;12..96,800&family=Figtree:wght@400;500;600;700&family=IBM+Plex+Mono:wght@500&display=swap">
+<link rel="stylesheet" href="site.css">
+<link rel="manifest" href="/manifest.json">
+<link rel="icon" href="/icon-192.png">
+<meta name="theme-color" content="#0038A8">
+</head>
+<body>
+<script src="common.js"></script>
+<script src="i18n.js"></script>
+<div class="tricolor"></div>
+<header class="top"><div class="wrap">
+  <a class="brand" href="/" aria-label="Sinag Jobs home"><svg viewBox="-60 -60 120 120" aria-hidden="true"><g fill="#FCD116"><use href="#ray"/><use href="#ray" transform="rotate(45)"/><use href="#ray" transform="rotate(90)"/><use href="#ray" transform="rotate(135)"/><use href="#ray" transform="rotate(180)"/><use href="#ray" transform="rotate(225)"/><use href="#ray" transform="rotate(270)"/><use href="#ray" transform="rotate(315)"/><circle r="18"/></g></svg>Sinag<b>Jobs</b></a>
+  <nav class="links"><a href="/" class="hide-sm">Browse jobs</a><span class="account" id="account"></span></nav>
+</div></header>
+
+<main>
+<div class="wrap page">
+  <div class="page-head">
+    <div><h1 id="hello">My account</h1><p id="helloSub">Your applications, profile and job alerts in one place.</p></div>
+    <a class="btn btn-blue" href="/">Find jobs</a>
+  </div>
+  <div id="banner"></div>
+  <div class="tabs" role="tablist" aria-label="My account">
+    <button role="tab" data-tab="applications" aria-controls="pApps" id="tApps">Applications <span class="count" id="cApps"></span></button>
+    <button role="tab" data-tab="messages" aria-controls="pMsgs" id="tMsgs">Messages <span class="count" id="cMsgs"></span></button>
+    <button role="tab" data-tab="interviews" aria-controls="pIvs" id="tIvs">Interviews <span class="count" id="cIvs"></span></button>
+    <button role="tab" data-tab="invites" aria-controls="pInvites" id="tInvites">Invitations <span class="count" id="cInv"></span></button>
+    <button role="tab" data-tab="matches" aria-controls="pMatches" id="tMatches">Jobs for you</button>
+    <button role="tab" data-tab="profile" aria-controls="pProfile" id="tProfile">Profile</button>
+    <button role="tab" data-tab="files" aria-controls="pFiles" id="tFiles">Resumes and files</button>
+    <button role="tab" data-tab="alerts" aria-controls="pAlerts" id="tAlerts">Job alerts</button>
+    <button role="tab" data-tab="extras" aria-controls="pExtras" id="tExtras">Extras</button>
+    <button role="tab" data-tab="notifications" aria-controls="pNotifs" id="tNotifs">Notifications</button>
+    <button role="tab" data-tab="account" aria-controls="pAccount" id="tAccount">Account</button>
+  </div>
+
+  <section id="pApps" role="tabpanel" aria-labelledby="tApps" hidden><div id="apps" class="rows"></div></section>
+
+  <section id="pMsgs" role="tabpanel" aria-labelledby="tMsgs" hidden><div id="inbox"></div></section>
+  <section id="pIvs" role="tabpanel" aria-labelledby="tIvs" hidden>
+    <p class="hint" style="margin-top:0">Times are in Philippine time. Once you confirm, you and the employer both get a calendar invite by email.</p>
+    <div id="ivs" class="rows"></div>
+  </section>
+  <section id="pExtras" role="tabpanel" aria-labelledby="tExtras" hidden>
+    <div id="exNotice"></div>
+    <div class="stats" id="exTiles" style="margin-bottom:20px"></div>
+    <div class="plans" id="exProducts" style="margin-bottom:20px"></div>
+    <h3>Orders and receipts</h3>
+    <div id="exOrders"></div>
+  </section>
+
+  <section id="pInvites" role="tabpanel" aria-labelledby="tInvites" hidden>
+    <p class="hint" style="margin-top:0">Employers who found you in the resume database and want you to apply. Your contact details stay private unless you apply.</p>
+    <div id="invites" class="rows"></div>
+  </section>
+
+  <section id="pMatches" role="tabpanel" aria-labelledby="tMatches" hidden>
+    <p class="hint" style="margin-top:0">Ranked by how well each open job fits your skills, preferred setup, location, pay and experience. Update your profile to improve them.</p>
+    <div id="matches" class="rows"></div>
+  </section>
+
+  <section id="pProfile" role="tabpanel" aria-labelledby="tProfile" hidden>
+    <form id="profileForm">
+      <div class="panel">
+        <h2>About you</h2><p class="sub">Employers see this when you apply. Keep it short and specific.</p>
+        <div class="grid2">
+          <label class="f"><span>Full name *</span><input id="pfName" required maxlength="200"></label>
+          <label class="f"><span>Headline *</span><input id="pfHeadline" maxlength="200" placeholder="e.g. Customer support specialist, 3 years in fintech"></label>
+          <label class="f"><span>Mobile number</span><input id="pfPhone" maxlength="40" placeholder="0917 123 4567" inputmode="tel"></label>
+          <label class="f"><span>Where you live</span><select id="pfLoc"><option value="">Choose…</option></select></label>
+          <label class="f span2"><span>Summary</span><textarea id="pfSummary" maxlength="5000" placeholder="What you've done, what you're good at, what you're looking for."></textarea></label>
+          <div class="f span2"><span>Skills *</span><div id="pfSkills"></div><small>Press Enter after each skill, e.g. Excel, Zendesk, Python, Tagalog-English translation.</small></div>
+          <label class="f"><span>Years of work experience</span><input id="pfYears" type="number" min="0" max="60" inputmode="numeric"></label>
+          <label class="f"><span>Expected monthly pay (₱)</span><input id="pfSalary" type="number" min="0" step="1000" inputmode="numeric" placeholder="30000"></label>
+        </div>
+      </div>
+      <div class="panel">
+        <h2>What you're looking for</h2><p class="sub">Used for "Jobs for you" and profile-based alerts.</p>
+        <div class="f"><span>Work setup</span><div class="checks" id="pfSetups"></div></div>
+        <div class="f" style="margin-top:14px"><span>Job type</span><div class="checks" id="pfTypes"></div></div>
+        <div class="f" style="margin-top:14px"><span>Fields</span><div class="checks" id="pfCats"></div></div>
+      </div>
+      <div class="panel">
+        <h2>Resume database</h2>
+        <label class="opt" style="align-items:flex-start;margin-top:8px"><input type="checkbox" id="pfSearch" style="margin-top:4px"> <span><b>Let verified employers find me</b><br><span class="hint">They see your name, headline, skills, location, experience, expected pay and your latest resume. Your email and phone stay hidden until you apply. Switch this off any time.</span></span></label>
+      </div>
+      <div class="actions"><button class="btn btn-red" type="submit">Save profile</button><span class="err" id="pfErr" hidden></span></div>
+    </form>
+  </section>
+
+  <section id="pFiles" role="tabpanel" aria-labelledby="tFiles" hidden>
+    <div class="panel">
+      <h2>Resumes and files</h2><p class="sub">Upload once, then attach to any Easy Apply application. PDF, Word, PNG or JPG, up to 5 MB each.</p>
+      <div class="drop-zone" id="drop">
+        <p style="margin:0 0 10px">Drag a file here, or choose one.</p>
+        <div class="split" style="max-width:420px;margin:0 auto">
+          <select id="upKind" class="input"><option value="resume">Resume</option><option value="certificate">Certificate</option><option value="portfolio">Portfolio</option><option value="other">Other</option></select>
+          <input type="file" id="upFile" class="input" accept=".pdf,.docx,.png,.jpg,.jpeg">
+        </div>
+      </div>
+      <div class="docs" id="docs" style="margin-top:16px"></div>
+    </div>
+  </section>
+
+  <section id="pAlerts" role="tabpanel" aria-labelledby="tAlerts" hidden>
+    <div class="panel">
+      <h2>New alert</h2><p class="sub">We email you when new jobs match. "Instant" checks every 15 minutes; "Daily" sends one email at 8 AM.</p>
+      <form id="alertForm" class="grid3">
+        <label class="f"><span>Field</span><select id="alCat"><option value="">Any</option></select></label>
+        <label class="f"><span>Location</span><select id="alLoc"><option value="">Anywhere in the Philippines</option></select></label>
+        <label class="f"><span>Keywords</span><input id="alKw" maxlength="200" placeholder="e.g. React, nurse"></label>
+        <label class="f"><span>Minimum monthly pay (₱)</span><input id="alPay" type="number" min="0" step="1000" inputmode="numeric"></label>
+        <label class="f"><span>How often</span><select id="alFreq"><option value="daily">Daily at 8 AM</option><option value="instant">Instant</option></select></label>
+        <label class="opt" style="align-self:end;padding-bottom:10px"><input type="checkbox" id="alProfile" checked> Only jobs that match my profile</label>
+        <div class="span2"><button class="btn btn-blue" type="submit">Add alert</button></div>
+      </form>
+    </div>
+    <div class="panel"><h2>Your alerts</h2><div id="alerts" class="rows" style="margin-top:12px"></div></div>
+  </section>
+
+  <section id="pNotifs" role="tabpanel" aria-labelledby="tNotifs" hidden><div class="panel" id="pushCtl" style="margin-bottom:16px"></div><div id="notifs"></div></section>
+
+  <section id="pAccount" role="tabpanel" aria-labelledby="tAccount" hidden>
+    <div class="panel" id="linkedPanel" hidden>
+      <h2>Sign-in options</h2><p class="sub">Sign in faster with an account you already have.</p>
+      <div id="linked"></div>
+    </div>
+    <div class="panel">
+      <h2 id="pwTitle">Change password</h2>
+      <form id="pwForm" class="grid2" style="margin-top:12px">
+        <label class="f" id="pwOldWrap"><span>Current password</span><input id="pwOld" type="password" autocomplete="current-password" required></label>
+        <label class="f"><span>New password</span><input id="pwNew" type="password" autocomplete="new-password" minlength="8" required></label>
+        <div><button class="btn btn-ghost" type="submit">Change password</button></div>
+      </form>
+    </div>
+    <div class="panel">
+      <h2>Delete my account</h2><p class="sub">This removes your profile, files, applications and alerts for good. Employers you applied to will no longer see your application.</p>
+      <form id="delForm" class="grid2">
+        <label class="f" id="delPwWrap"><span>Type your password to confirm</span><input id="delPw" type="password" autocomplete="current-password"></label>
+        <label class="f" id="delEmailWrap" hidden><span>Type your email address to confirm</span><input id="delEmail" type="email" autocomplete="off"></label>
+        <div style="align-self:end"><button class="btn btn-red" type="submit">Delete my account</button></div>
+      </form>
+    </div>
+  </section>
+</div>
+</main>
+
+<script>
+(async () => {
+  const { esc, peso } = S;
+  const $ = id => document.getElementById(id);
+  const user = await S.requireRole("seeker");
+  if (!user) return;
+  S.renderAccount($("account"));
+  S.verifyBanner($("banner"), user);
+  $("hello").textContent = `Hi, ${user.name.split(" ")[0]}`;
+
+  const OPTS = { locations: ["Remote (PH-based)", "Metro Manila", "Cebu", "Davao", "Iloilo", "Bacolod", "Clark, Pampanga", "Baguio", "Cagayan de Oro", "Laguna", "Cavite", "Batangas", "Bulacan", "Dumaguete", "General Santos", "Zamboanga", "Tacloban", "Bicol", "Philippines (other)"],
+    setups: ["Remote", "Hybrid", "On-site"], types: ["Full-time", "Part-time", "Contract", "Freelance", "Internship"],
+    cats: ["Customer Support", "Data", "Design", "Education", "Engineering", "Finance", "Healthcare", "HR & Recruiting", "Legal", "Marketing", "Operations", "Sales", "Virtual Assistant", "Other"] };
+  const locOpts = OPTS.locations.map(l => `<option>${esc(l)}</option>`).join("");
+  $("pfLoc").insertAdjacentHTML("beforeend", locOpts); $("alLoc").insertAdjacentHTML("beforeend", locOpts);
+  $("alCat").insertAdjacentHTML("beforeend", OPTS.cats.map(c => `<option>${esc(c)}</option>`).join(""));
+  const checks = (el, name, list) => el.innerHTML = list.map((v, i) => `<label class="check"><input type="checkbox" name="${name}" id="${name}-${i}" value="${esc(v)}"> ${esc(v)}</label>`).join("");
+  checks($("pfSetups"), "setup", OPTS.setups); checks($("pfTypes"), "jtype", OPTS.types); checks($("pfCats"), "cat", OPTS.cats);
+  const picked = name => [...document.querySelectorAll(`input[name=${name}]:checked`)].map(x => x.value);
+  const setPicked = (name, vals) => document.querySelectorAll(`input[name=${name}]`).forEach(x => (x.checked = vals.includes(x.value)));
+
+  // ---------------- Applications
+  async function loadApps() {
+    const apps = await S.api("/me/applications");
+    const active = apps.filter(a => !["Withdrawn", "Not selected"].includes(a.status)).length;
+    $("cApps").textContent = apps.length ? active : "";
+    $("apps").innerHTML = apps.length ? apps.map(a => `
+      <div class="rowcard">
+        <div style="min-width:0">
+          <h3>${esc(a.job.title)}</h3>
+          <div class="co" style="color:var(--muted);font-weight:600">${esc(a.job.company)} · ${esc(a.job.location)}${a.job.open ? "" : " · no longer open"}</div>
+          <ul class="timeline">${a.timeline.map(t => `<li title="${esc(S.date(t.at))}">${esc(t.status)} · ${S.day(t.at)}</li>`).join("")}</ul>
+          ${(a.tests || []).length || a.chat ? `<div class="actions" style="margin-top:12px">
+            ${(a.tests || []).map(t => t.status === "Completed" ? `<span class="pill">${esc(t.title)}: ${t.score}%</span>`
+              : `<a class="btn btn-red btn-sm" href="/test.html?id=${t.id}">${t.status === "In progress" ? "Continue" : "Take"} the ${esc(t.title)} test</a>`).join("")}
+            ${a.chat === "open" ? `<a class="btn btn-blue btn-sm" href="/chat.html?app=${a.id}">Answer follow-up questions</a>` : a.chat === "done" ? '<span class="pill">Follow-up questions answered</span>' : ""}
+          </div>` : ""}
+        </div>
+        <div class="side">${S.statusPill(a.status)}
+          ${a.job.open ? `<a class="btn btn-ghost btn-sm" href="/#job-${a.job.id}">View job</a>` : ""}
+          ${a.messages ? `<a class="btn btn-ghost btn-sm" href="#messages-${a.id}">Messages${a.unread ? ` (${a.unread})` : ""}</a>` : ""}
+          ${["applied", "screening", "shortlisted", "interview", "offer"].includes(a.stage) ? `<button class="linkbtn" data-withdraw="${a.id}">Withdraw</button>` : ""}
+        </div>
+      </div>`).join("")
+      : `<div class="empty-sm">No applications yet. Look for jobs marked <b>Easy Apply</b> to apply with your profile in one step.<br><br><a class="btn btn-blue" href="/">Browse jobs</a></div>`;
+  }
+  $("apps").addEventListener("click", async e => {
+    const b = e.target.closest("[data-withdraw]"); if (!b) return;
+    if (b.dataset.confirm !== "1") { b.dataset.confirm = "1"; b.textContent = "Click again to withdraw"; return; }
+    try { await S.api(`/me/applications/${b.dataset.withdraw}/withdraw`, { method: "POST" }); S.toast("Application withdrawn"); loadApps(); }
+    catch (err) { S.toast(err.message); }
+  });
+
+  // ---------------- Invitations
+  async function loadInvites() {
+    const inv = await S.api("/me/invites");
+    const open = inv.filter(i => i.status === "sent" && i.job.open).length;
+    $("cInv").textContent = open || "";
+    $("invites").innerHTML = inv.length ? inv.map(i => `
+      <div class="rowcard"><div style="min-width:0">
+        <h3>${esc(i.job.title)}</h3>
+        <div class="co" style="color:var(--muted);font-weight:600"><a href="/company.html?c=${encodeURIComponent(i.job.company_slug)}">${esc(i.job.company)}</a> · ${esc(i.job.location)} · ${esc(i.job.setup)}</div>
+        ${i.message ? `<p class="prose" style="margin:8px 0 0;white-space:pre-wrap">"${esc(i.message)}"</p>` : ""}
+        <div class="meta"><span>Invited ${S.ago(i.at)}</span></div>
+      </div><div class="side">${S.statusPill(i.status === "sent" ? (i.job.open ? "New" : "Closed") : i.status === "applied" ? "Applied" : "Declined")}
+        ${i.status === "sent" && i.job.open ? `<a class="btn btn-red btn-sm" href="/#job-${i.job.id}">View and apply</a><button class="linkbtn" data-decline="${i.id}">Not interested</button>` : ""}
+      </div></div>`).join("")
+      : `<div class="empty-sm">No invitations yet. Switch on <b>Let verified employers find me</b> in your profile so employers can invite you.</div>`;
+  }
+  $("invites").addEventListener("click", async e => {
+    const b = e.target.closest("[data-decline]"); if (!b) return;
+    try { await S.api(`/me/invites/${b.dataset.decline}/decline`, { method: "POST" }); loadInvites(); } catch (err) { S.toast(err.message); }
+  });
+
+  // ---------------- Matches
+  async function loadMatches() {
+    $("matches").innerHTML = `<p class="hint">Finding jobs for you…</p>`;
+    const d = await S.api("/me/matches");
+    if (!d.ready) { $("matches").innerHTML = `<div class="empty-sm">${esc(d.message)}<br><br><button class="btn btn-blue" data-goto="profile">Update profile</button></div>`; return; }
+    $("matches").innerHTML = d.jobs.length ? d.jobs.map(j => `
+      <div class="rowcard"><div style="min-width:0">
+        <h3><a href="/#job-${j.id}" style="text-decoration:none">${esc(j.title)}</a></h3>
+        <div class="co" style="color:var(--muted);font-weight:600">${esc(j.company.name)} · ${esc(j.location)} · ${esc(j.setup)}</div>
+        ${j.match.reasons.length ? `<ul class="reasons">${j.match.reasons.slice(0, 3).map(r => `<li>${esc(r)}</li>`).join("")}</ul>` : ""}
+      </div><div class="side"><span class="match">Match <b>${j.match.score}%</b></span>
+        <div class="salary">${j.salary_max ? `${peso(j.salary_min)}–${peso(j.salary_max)}` : "<small>Salary not stated</small>"}</div>
+        ${j.easy_apply ? '<span class="pill easy">Easy Apply</span>' : ""}<a class="btn btn-ghost btn-sm" href="/#job-${j.id}">View</a></div></div>`).join("")
+      : `<div class="empty-sm">No strong matches right now. Try adding more skills or widening the setups and fields you chose.</div>`;
+  }
+  document.addEventListener("click", e => { const g = e.target.closest("[data-goto]"); if (g) show(g.dataset.goto, true); });
+
+  // ---------------- Profile
+  const skills = { box: null };
+  async function loadProfile() {
+    const p = await S.api("/me/profile");
+    $("pfName").value = p.full_name; $("pfHeadline").value = p.headline; $("pfPhone").value = p.phone; $("pfLoc").value = p.location;
+    $("pfSummary").value = p.summary; $("pfYears").value = p.years_experience ?? ""; $("pfSalary").value = p.desired_salary ?? "";
+    skills.box = S.tagInput($("pfSkills"), p.skills, "Add a skill and press Enter");
+    setPicked("setup", p.desired_setups); setPicked("jtype", p.desired_job_types); setPicked("cat", p.desired_categories);
+    $("pfSearch").checked = !!p.searchable;
+    if (!p.complete) { $("helloSub").textContent = "Finish your profile (headline and skills) to use Easy Apply and see jobs picked for you."; }
+  }
+  $("profileForm").addEventListener("submit", async e => {
+    e.preventDefault(); $("pfErr").hidden = true;
+    const num = v => v === "" ? null : Math.max(0, parseInt(v, 10) || 0);
+    const body = { full_name: $("pfName").value, headline: $("pfHeadline").value, phone: $("pfPhone").value, location: $("pfLoc").value,
+      summary: $("pfSummary").value, skills: skills.box.get(), years_experience: num($("pfYears").value), desired_salary: num($("pfSalary").value),
+      desired_setups: picked("setup"), desired_job_types: picked("jtype"), desired_categories: picked("cat"), searchable: $("pfSearch").checked };
+    try { const p = await S.api("/me/profile", { method: "PUT", body }); S.toast("Profile saved"); if (p.complete) $("helloSub").textContent = "Your applications, profile and job alerts in one place."; }
+    catch (err) { $("pfErr").textContent = err.message; $("pfErr").hidden = false; }
+  });
+
+  // ---------------- Files
+  async function loadDocs() {
+    const docs = await S.api("/me/documents");
+    $("docs").innerHTML = docs.length ? docs.map(d => `
+      <div class="doc"><span class="ico" style="background:${d.kind === "resume" ? "var(--flag-red)" : "var(--flag-blue)"}">${esc(d.filename.split(".").pop().toUpperCase())}</span>
+        <span class="nm"><b>${esc(d.filename)}</b><small>${esc(d.kind)} · ${S.size(d.size)} · added ${S.day(d.created_at)}${d.kind === "resume" && !d.has_text && d.content_type === "application/pdf" ? " · scanned PDF: text couldn't be read, so add your skills to your profile" : ""}</small></span>
+        <a class="btn btn-ghost btn-sm" href="/api/me/documents/${d.id}/file" target="_blank" rel="noopener">Open</a>
+        <button class="btn btn-ghost btn-sm" data-del="${d.id}" aria-label="Delete ${esc(d.filename)}">Delete</button></div>`).join("")
+      : `<div class="empty-sm">No files yet. Upload your resume to start applying.</div>`;
+  }
+  async function upload(file) {
+    if (!file) return;
+    const fd = new FormData(); fd.append("file", file); fd.append("kind", $("upKind").value);
+    try { const d = await S.api("/me/documents", { method: "POST", body: fd }); S.toast("Uploaded " + d.filename); loadDocs(); }
+    catch (err) { S.toast(err.message); }
+    $("upFile").value = "";
+  }
+  $("upFile").onchange = e => upload(e.target.files[0]);
+  const dz = $("drop");
+  ["dragenter", "dragover"].forEach(ev => dz.addEventListener(ev, e => { e.preventDefault(); dz.classList.add("over"); }));
+  ["dragleave", "drop"].forEach(ev => dz.addEventListener(ev, e => { e.preventDefault(); dz.classList.remove("over"); }));
+  dz.addEventListener("drop", e => upload(e.dataTransfer.files[0]));
+  $("docs").addEventListener("click", async e => {
+    const b = e.target.closest("[data-del]"); if (!b) return;
+    if (b.dataset.confirm !== "1") { b.dataset.confirm = "1"; b.textContent = "Confirm delete"; return; }
+    try { await S.api(`/me/documents/${b.dataset.del}`, { method: "DELETE" }); S.toast("File deleted"); loadDocs(); } catch (err) { S.toast(err.message); }
+  });
+
+  // ---------------- Alerts
+  async function loadAlerts() {
+    const al = await S.api("/me/alerts");
+    $("alerts").innerHTML = al.length ? al.map(a => `
+      <div class="rowcard"><div><h3>${esc([a.category || "Any field", a.location || "Anywhere", a.keywords && `"${a.keywords}"`].filter(Boolean).join(" · "))}</h3>
+        <div class="meta"><span>${a.frequency === "instant" ? "Instant" : "Daily at 8 AM"}</span>${a.min_pay ? `<span>From ${peso(a.min_pay)}/mo</span>` : ""}${a.use_profile ? "<span>Matches my profile</span>" : ""}</div></div>
+        <div class="side"><button class="btn btn-ghost btn-sm" data-alert="${a.id}">Delete</button></div></div>`).join("")
+      : `<div class="empty-sm">No alerts yet. Add one above.</div>`;
+  }
+  $("alertForm").addEventListener("submit", async e => {
+    e.preventDefault();
+    const body = { category: $("alCat").value || null, location: $("alLoc").value || null, keywords: $("alKw").value || null,
+      min_pay: $("alPay").value ? +$("alPay").value : null, frequency: $("alFreq").value, use_profile: $("alProfile").checked };
+    try { await S.api("/me/alerts", { method: "POST", body }); S.toast("Alert added"); e.target.reset(); $("alProfile").checked = true; loadAlerts(); }
+    catch (err) { S.toast(err.message); }
+  });
+  $("alerts").addEventListener("click", async e => {
+    const b = e.target.closest("[data-alert]"); if (!b) return;
+    try { await S.api(`/me/alerts/${b.dataset.alert}`, { method: "DELETE" }); loadAlerts(); } catch (err) { S.toast(err.message); }
+  });
+
+  // ---------------- Account
+  $("pwForm").addEventListener("submit", async e => {
+    e.preventDefault();
+    try { S.toast((await S.api("/auth/change-password", { method: "POST", body: { current_password: $("pwOld").value, new_password: $("pwNew").value } })).message); e.target.reset(); S.me(true); loadAccount(); }
+    catch (err) { S.toast(err.message); }
+  });
+
+  // Password-less accounts (made with Google/Facebook/LinkedIn) set a password instead of changing one
+  async function loadAccount() {
+    const me = await S.me(true);
+    const noPw = !me.has_password;
+    $("pwTitle").textContent = noPw ? "Set a password" : "Change password";
+    $("pwOldWrap").hidden = noPw; $("pwOld").required = !noPw;
+    $("delPwWrap").hidden = noPw; $("delEmailWrap").hidden = !noPw;
+    const ids = await S.api("/me/identities");
+    $("linkedPanel").hidden = !ids.available.length && !ids.linked.length;
+    $("linked").innerHTML = ids.available.map(p => {
+      const l = ids.linked.find(x => x.provider === p.id);
+      return `<div class="rowcard"><div><h3>${esc(p.name)}</h3><div class="meta"><span>${l ? "Linked" + (l.email ? ": " + esc(l.email) : "") : "Not linked"}</span></div></div>
+        <div class="side">${l ? `<button class="btn btn-ghost btn-sm" data-unlink="${l.id}">Unlink</button>` : S.native() ? `<span class="hint">Link it on the website</span>` : `<a class="btn btn-ghost btn-sm" href="/api/auth/oauth/${p.id}/start?link=true">Link ${esc(p.name)}</a>`}</div></div>`;
+    }).join("");
+  }
+  $("linked").addEventListener("click", async e => {
+    const b = e.target.closest("[data-unlink]"); if (!b) return;
+    try { await S.api(`/me/identities/${b.dataset.unlink}`, { method: "DELETE" }); S.toast("Unlinked"); loadAccount(); } catch (err) { S.toast(err.message); }
+  });
+
+  // ---------------- Interviews
+  async function loadInterviews() {
+    const list = await S.api("/interviews/mine");
+    $("cIvs").textContent = list.filter(i => i.status === "proposed").length || "";
+    $("ivs").innerHTML = list.length ? list.map(iv => S.interviewCard(iv, "candidate")).join("")
+      : `<div class="empty-sm">No interviews yet. When an employer invites you, you pick a time here.</div>`;
+  }
+  $("ivs").addEventListener("click", async e => {
+    const b = e.target.closest("button"); if (!b) return;
+    try {
+      if (b.dataset.accept) {
+        e.preventDefault();
+        const slot = b.closest("form").querySelector("input[type=radio]:checked").value;
+        await S.api(`/interviews/${b.dataset.accept}/accept`, { method: "POST", body: { slot } });
+        S.toast("Confirmed. A calendar invite is on its way to your email.");
+      } else if (b.dataset.other) {
+        if (b.dataset.confirm !== "1") {
+          b.dataset.confirm = "1"; b.textContent = "Send request";
+          b.insertAdjacentHTML("beforebegin", `<label class="f" style="width:100%"><span>When are you free? (optional)</span><input class="input" maxlength="500" data-reason placeholder="e.g. Weekdays after 4pm"></label>`);
+          return;
+        }
+        const reason = (b.parentElement.querySelector("[data-reason]") || {}).value || "";
+        await S.api(`/interviews/${b.dataset.other}/decline`, { method: "POST", body: { reason } });
+        S.toast("We asked the employer for other times.");
+      } else if (b.dataset.cancel) {
+        if (b.dataset.confirm !== "1") { b.dataset.confirm = "1"; b.textContent = "Click again to cancel"; return; }
+        await S.api(`/interviews/${b.dataset.cancel}/cancel`, { method: "POST", body: { reason: "" } });
+        S.toast("Interview cancelled. The employer was told.");
+      } else return;
+      loadInterviews(); loadApps();
+    } catch (err) { S.toast(err.message); }
+  });
+
+  // ---------------- Extras (test payments only)
+  S.testBanner($("exNotice"));
+  async function loadExtras() {
+    const x = await S.api("/billing/seeker");
+    if (!x.billing_enabled) { $("exProducts").innerHTML = `<div class="notice">Extras aren't available on this site.</div>`; return; }
+    $("exTiles").innerHTML = `
+      <div class="stat"><b>${x.highlighted_until ? "Until " + S.day(x.highlighted_until) : "Off"}</b><span>Highlighted profile</span></div>
+      <div class="stat"><b>${x.priority_credits}</b><span>Priority applications left</span></div>`;
+    $("exProducts").innerHTML = x.products.map(p => `<div class="plan"><b>${esc(p.name)}</b><div class="price">${S.peso(p.price_php)}</div><p>${esc(p.description)}</p>
+      ${p.kind === "seeker_highlight" && !x.searchable ? `<span class="hint">First turn on "Let employers find me" in your <a href="#profile">profile</a>.</span>` : ""}
+      <label class="f"><span>Discount code (optional)</span><input class="input" data-code="${p.code}" maxlength="40" autocomplete="off"></label>
+      <button class="btn btn-blue btn-sm" data-buy="${p.code}"${p.kind === "seeker_highlight" && !x.searchable ? " disabled" : ""}>Buy (test)</button></div>`).join("");
+    $("exOrders").innerHTML = x.orders.length ? `<div class="table-wrap"><table><thead><tr><th>Order</th><th>Item</th><th class="n">Amount</th><th>Status</th><th>Date</th><th></th></tr></thead><tbody>
+      ${x.orders.map(o => `<tr><td style="font-family:var(--f-mono);font-size:13px">${esc(o.number)}</td><td>${esc(o.product)}</td><td class="n">${S.peso(o.amount_php)}</td>
+        <td>${S.statusPill({ paid: "Paid", pending: "Pending", failed: "Failed", refunded: "Refunded", cancelled: "Cancelled" }[o.status] || o.status)}</td><td>${S.day(o.paid_at || o.created_at)}</td>
+        <td>${o.invoice_url ? `<a href="${o.invoice_url}">Invoice</a>` : ["pending", "failed"].includes(o.status) ? `<a href="/checkout.html?order=${o.id}">Pay</a>` : ""}</td></tr>`).join("")}
+      </tbody></table></div><p class="hint">All orders are test orders. No real charges were made.</p>` : `<p class="hint">No orders yet.</p>`;
+  }
+  $("exProducts").addEventListener("click", async e => {
+    const b = e.target.closest("[data-buy]"); if (!b) return;
+    b.disabled = true;
+    const code = ($("exProducts").querySelector(`[data-code="${b.dataset.buy}"]`) || {}).value || null;
+    try { const r = await S.api("/billing/checkout", { method: "POST", body: { product_code: b.dataset.buy, discount_code: code } }); location.href = r.checkout_url; }
+    catch (err) { S.toast(err.message); b.disabled = false; }
+  });
+  $("delForm").addEventListener("submit", async e => {
+    e.preventDefault();
+    const b = e.submitter;
+    if (b.dataset.confirm !== "1") { b.dataset.confirm = "1"; b.textContent = "Click again to delete everything"; return; }
+    try { await S.api("/me/delete-account", { method: "POST", body: { password: $("delPw").value, confirm_email: $("delEmail").value } }); location.href = "/"; }
+    catch (err) { S.toast(err.message); b.dataset.confirm = ""; b.textContent = "Delete my account"; }
+  });
+
+  let pushDrawn = false;
+  const loaders = { applications: loadApps, invites: loadInvites, matches: loadMatches, files: loadDocs, alerts: loadAlerts,
+    interviews: loadInterviews, extras: loadExtras, account: loadAccount,
+    messages: () => { const m = /^#messages-(\d+)$/.exec(location.hash); return S.inbox($("inbox"), m ? +m[1] : null).then(() => S.unreadMessages($("cMsgs"))); },
+    notifications: () => { if (!pushDrawn) { pushDrawn = true; S.pushControl($("pushCtl")); } return S.notificationsPanel($("notifs")); } };
+  const loaded = new Set();
+  const show = S.tabs(document.querySelector("[role=tablist]"), name => {
+    if (loaders[name] && (!loaded.has(name) || ["matches", "applications", "invites", "interviews", "extras", "messages"].includes(name))) {
+      loaded.add(name); loaders[name]().catch(err => S.toast(err.message));
+    }
+  });
+  await loadProfile();
+  // Apple and Google require their own in-app billing for digital extras bought inside an app: keep them on the website.
+  if (S.native()) { $("tExtras").hidden = true; $("pExtras").innerHTML = `<p class="hint">Extras are available on the Sinag Jobs website.</p>`; }
+  const route = () => { const h = (location.hash || "#applications").slice(1); show(h.startsWith("messages-") ? "messages" : h); };
+  route();
+  window.addEventListener("hashchange", () => { if (!/^#messages-\d+$/.test(location.hash) || $("pMsgs").hidden) route(); });
+  if (new URLSearchParams(location.search).get("linked")) S.toast("Linked. You can now sign in with it.");
+  loadApps().catch(() => {});
+  loadInterviews().catch(() => {});
+  S.unreadMessages($("cMsgs"));
+  loadInvites().catch(() => {});
+})();
+</script>
+</body>
+</html>

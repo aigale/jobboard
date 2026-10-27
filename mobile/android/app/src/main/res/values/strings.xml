@@ -1,0 +1,7 @@
+<?xml version='1.0' encoding='utf-8'?>
+<resources>
+    <string name="app_name">Sinag Jobs</string>
+    <string name="title_activity_main">Sinag Jobs</string>
+    <string name="package_name">ph.sinagjobs.app</string>
+    <string name="custom_url_scheme">ph.sinagjobs.app</string>
+</resources>

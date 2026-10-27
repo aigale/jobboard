@@ -1,0 +1,10 @@
+# Your list of companies to crawl. This file is uploaded to GitHub and read by the server.
+# See companies.example.yaml for the format and where to find each company's `key`.
+#
+# Example (remove the # signs and use a real company):
+# - name: Acme Philippines
+#   source: greenhouse
+#   key: acme
+#   careers_url: https://acme.com/careers
+
+[]

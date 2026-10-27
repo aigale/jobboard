@@ -1,0 +1,305 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Admin · Sinag Jobs</title>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,600;12..96,800&family=Figtree:wght@400;500;600;700&family=IBM+Plex+Mono:wght@500&display=swap">
+<link rel="stylesheet" href="site.css">
+<link rel="manifest" href="/manifest.json">
+<link rel="icon" href="/icon-192.png">
+<meta name="theme-color" content="#0038A8">
+</head>
+<body>
+<script src="common.js"></script>
+<div class="tricolor"></div>
+<header class="top"><div class="wrap">
+  <a class="brand" href="/" aria-label="Sinag Jobs home"><svg viewBox="-60 -60 120 120" aria-hidden="true"><g fill="#FCD116"><use href="#ray"/><use href="#ray" transform="rotate(45)"/><use href="#ray" transform="rotate(90)"/><use href="#ray" transform="rotate(135)"/><use href="#ray" transform="rotate(180)"/><use href="#ray" transform="rotate(225)"/><use href="#ray" transform="rotate(270)"/><use href="#ray" transform="rotate(315)"/><circle r="18"/></g></svg>Sinag<b>Jobs</b></a>
+  <nav class="links"><span class="account" id="account"></span></nav>
+</div></header>
+<main>
+<div class="wrap page">
+  <div class="page-head"><div><h1>Admin</h1><p>Verify employers, watch the numbers, set prices, and import jobs.</p></div></div>
+  <div class="stat-tiles" id="tiles"></div>
+  <div class="tabs" role="tablist" aria-label="Admin">
+    <button role="tab" data-tab="pending" aria-controls="pList" id="tPending">Waiting for review</button>
+    <button role="tab" data-tab="approved" aria-controls="pList" id="tApproved">Approved</button>
+    <button role="tab" data-tab="rejected" aria-controls="pList" id="tRejected">Not approved</button>
+    <button role="tab" data-tab="crawler" aria-controls="pCrawl" id="tCrawl">Crawler</button>
+    <button role="tab" data-tab="analytics" aria-controls="pStats" id="tStats">Analytics</button>
+    <button role="tab" data-tab="billing" aria-controls="pBill" id="tBill">Billing</button>
+    <button role="tab" data-tab="import" aria-controls="pImport" id="tImport">Import jobs</button>
+    <button role="tab" data-tab="notifications" aria-controls="pNotifs" id="tNotifs">Notifications</button>
+  </div>
+  <section id="pList" role="tabpanel" hidden><div id="list" class="rows"></div></section>
+  <section id="pCrawl" role="tabpanel" aria-labelledby="tCrawl" hidden><div id="crawl"></div></section>
+  <section id="pNotifs" role="tabpanel" aria-labelledby="tNotifs" hidden><div id="notifs"></div></section>
+  <section id="pStats" role="tabpanel" aria-labelledby="tStats" hidden>
+    <div style="display:flex;justify-content:space-between;align-items:center;gap:12px;flex-wrap:wrap;margin-bottom:14px">
+      <h2 style="margin:0">Site analytics</h2>
+      <label class="f" style="flex-direction:row;align-items:center;gap:8px"><span>Period</span>
+        <select class="input" id="stDays" style="width:auto"><option value="7">Last 7 days</option><option value="30" selected>Last 30 days</option><option value="90">Last 90 days</option></select></label>
+    </div>
+    <p class="muted" style="margin:-6px 0 14px;font-size:14px">Counted without cookies. Visitors are counted once a day using a hash that is deleted after 2 days. Bots are skipped.</p>
+    <div class="stats" id="stTiles" style="margin-bottom:16px"></div>
+    <div class="charts"><div id="chVisits"></div><div id="chViews"></div><div id="chApps"></div><div id="chSignups"></div></div>
+    <div class="charts">
+      <div><h3>Most viewed jobs</h3><div class="table-wrap" id="stTop"></div></div>
+      <div><h3>Top searches</h3><div class="table-wrap" id="stSearch"></div></div>
+    </div>
+    <h3>Recruiter engagement</h3>
+    <div class="table-wrap" id="stRec"></div>
+  </section>
+  <section id="pBill" role="tabpanel" aria-labelledby="tBill" hidden><div id="billNotice"></div><div id="billBody"></div></section>
+  <section id="pImport" role="tabpanel" aria-labelledby="tImport" hidden>
+    <div class="panel" style="margin-bottom:16px">
+      <h2 style="margin-top:0">Upload a file</h2>
+      <p class="muted" style="margin:0 0 12px">Backfill jobs from a CSV (<a href="/api/import/template.csv">download the template</a>) or an Indeed-style XML feed. Check first to see what will happen; nothing is saved until you import.</p>
+      <form id="impForm" style="display:grid;gap:12px">
+        <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,220px),1fr));gap:12px">
+          <label class="f"><span>Company</span><select class="input" id="impCo"></select></label>
+          <label class="f" id="impNewWrap"><span>New company name</span><input class="input" id="impNew" maxlength="120" placeholder="e.g. Bayanihan Foods Inc."></label>
+          <label class="f"><span>File</span><input class="input" type="file" id="impFile" accept=".csv,.xml,text/csv,text/xml,application/xml" required></label>
+        </div>
+        <div style="display:flex;gap:8px;flex-wrap:wrap"><button class="btn btn-blue" type="submit" data-dry="1">Check file</button><button class="btn btn-red" type="submit" data-dry="0" id="impGo" disabled>Import jobs</button></div>
+      </form>
+      <div id="impOut" style="margin-top:12px"></div>
+    </div>
+    <div class="panel">
+      <h2 style="margin-top:0">Feeds</h2>
+      <p class="muted" style="margin:0 0 12px">A feed is a URL with the company's full job list. It syncs daily: new jobs are added, changed ones updated, and jobs missing from the feed are closed.</p>
+      <form id="feedForm" style="display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,200px),1fr));gap:12px;align-items:end;margin-bottom:14px">
+        <label class="f"><span>Company</span><select class="input" id="feedCo"></select></label>
+        <label class="f" id="feedNewWrap"><span>New company name</span><input class="input" id="feedNew" maxlength="120"></label>
+        <label class="f" style="grid-column:span 2;min-width:0"><span>Feed URL</span><input class="input" id="feedUrl" type="url" required placeholder="https://example.com/jobs.xml"></label>
+        <label class="f"><span>Format</span><select class="input" id="feedFmt"><option value="xml">XML</option><option value="csv">CSV</option></select></label>
+        <button class="btn btn-blue" type="submit">Add feed and run</button>
+      </form>
+      <div id="feeds"></div>
+    </div>
+  </section>
+</div>
+</main>
+<script>
+(async () => {
+  const { esc } = S;
+  const $ = id => document.getElementById(id);
+  const user = await S.requireRole("admin");
+  if (!user) return;
+  S.renderAccount($("account"));
+
+  async function tiles() {
+    const o = await S.api("/admin/overview");
+    $("tiles").innerHTML = [[o.pending_companies, "employers to review"], [o.users.seekers, "job seekers"], [o.users.employers, "employer accounts"],
+      [o.direct_jobs_open, "employer job posts"], [o.crawled_jobs_open, "crawled jobs"], [o.applications, "applications"]]
+      .map(([n, l]) => `<div><b>${Number(n).toLocaleString(S.locale())}</b><span>${l}</span></div>`).join("");
+  }
+  async function list(approval) {
+    const rows = await S.api("/admin/companies?approval=" + approval);
+    $("list").innerHTML = rows.length ? rows.map(c => `
+      <div class="rowcard"><div style="min-width:0">
+        <h3>${esc(c.name)} ${S.statusPill(c.approval === "pending" ? "Pending" : c.approval === "approved" ? "Live" : "Rejected")}</h3>
+        <div class="meta"><span>${esc(c.industry || "")}</span><span>${esc(c.location_text || "")}</span><span>Registered ${S.day(c.created_at)}</span></div>
+        <p style="margin:8px 0 0;font-size:14px">${c.website ? `<a href="${esc(c.website)}" target="_blank" rel="noopener nofollow">${esc(c.website)}</a> · ` : "No website · "}${c.owner ? `${esc(c.owner.name)}, ${esc(c.owner.email)}` : ""}</p>
+        ${c.about ? `<p class="prose hint" style="margin:6px 0 0">${esc(c.about.slice(0, 400))}</p>` : ""}
+        ${c.approval_note ? `<p class="err" style="margin:6px 0 0">Note: ${esc(c.approval_note)}</p>` : ""}
+      </div><div class="side" style="min-width:min(100%,240px)">
+        ${c.approval !== "approved" ? `<button class="btn btn-blue btn-sm" data-approve="${c.id}">Approve</button>` : ""}
+        ${c.approval !== "rejected" ? `<input class="input" id="note-${c.id}" placeholder="Reason (needed to reject)" maxlength="500"><button class="btn btn-ghost btn-sm" data-reject="${c.id}">Don't approve</button>` : ""}
+      </div></div>`).join("")
+      : `<div class="empty-sm">Nothing here.</div>`;
+  }
+  $("list").addEventListener("click", async e => {
+    const b = e.target.closest("button"); if (!b) return;
+    const id = b.dataset.approve || b.dataset.reject; if (!id) return;
+    const body = b.dataset.approve ? { decision: "approved", note: "" } : { decision: "rejected", note: ($("note-" + id) || {}).value || "" };
+    try { await S.api(`/admin/companies/${id}/decision`, { method: "POST", body }); S.toast(body.decision === "approved" ? "Approved. The employer was notified." : "Not approved. The employer was told why."); show(current); tiles(); }
+    catch (err) { S.toast(err.message); }
+  });
+  async function crawler() {
+    const d = await S.api("/admin/status");
+    $("crawl").innerHTML = `
+      <div class="actions" style="margin:0 0 16px"><button class="btn btn-blue btn-sm" id="crawlNow">Crawl now</button><span class="hint">Runs automatically every 15 minutes.</span></div>
+      <div class="panel"><h2>Recent crawls</h2><div class="compare-wrap" style="margin-top:10px"><table><thead><tr><th>Finished</th><th>OK</th><th>Failed</th><th>New</th><th>Updated</th><th>Closed</th></tr></thead><tbody>
+      ${d.recent_runs.map(r => `<tr><td>${r.finished_at ? S.date(r.finished_at) : "Running"}</td><td>${r.companies_ok}</td><td>${r.companies_failed}</td><td>${r.new}</td><td>${r.updated}</td><td>${r.closed}</td></tr>`).join("") || `<tr><td colspan="6">No crawls yet.</td></tr>`}
+      </tbody></table></div></div>
+      <div class="panel"><h2>Companies with errors</h2>${d.failing_companies.length ? `<div class="rows" style="margin-top:10px">${d.failing_companies.map(c => `<div class="rowcard"><div><h3>${esc(c.slug)} <span class="pill">${esc(c.source)}</span></h3><p class="err" style="margin:4px 0 0">${esc(c.error || "")}</p></div><div class="side"><span class="hint">${c.failures_in_a_row} in a row</span></div></div>`).join("")}</div>` : `<p class="hint">None. Every company crawled cleanly last time.</p>`}</div>`;
+    $("crawlNow").onclick = async () => { try { S.toast((await S.api("/admin/crawl", { method: "POST" })).message); } catch (err) { S.toast(err.message); } };
+  }
+  // ---------------- Analytics
+  const cssVar = n => getComputedStyle(document.documentElement).getPropertyValue(n).trim();
+  const num = n => Number(n).toLocaleString(S.locale());
+  async function analytics() {
+    const d = await S.api(`/admin/analytics?days=${$("stDays").value}`);
+    const t = d.totals, c1 = cssVar("--chart-1"), c2 = cssVar("--chart-2");
+    $("stTiles").innerHTML = [
+      [num(t.unique), "Unique visitors"], [num(t.job_view), "Job views"], [num(t.apply_click + t.application), "Applications and apply clicks"],
+      [d.conversion.view_to_apply != null ? d.conversion.view_to_apply + "%" : "—", "Job views that led to applying"], [num(t.signup), `Sign-ups (${d.signups.seeker} seekers, ${d.signups.employer} employers)`],
+      [d.conversion.visitor_to_signup != null ? d.conversion.visitor_to_signup + "%" : "—", "Visitors who signed up"]]
+      .map(([n, l]) => `<div class="stat"><b>${n}</b><span>${l}</span></div>`).join("");
+    S.lineChart($("chVisits"), { title: "Visitors per day", sub: "Visits and unique visitors", days: d.days,
+      series: [{ name: "Visits", values: d.series.visit, color: c1 }, { name: "Unique visitors", values: d.series.unique, color: c2 }] });
+    S.lineChart($("chViews"), { title: "Job views per day", days: d.days, series: [{ name: "Job views", values: d.series.job_view, color: c1 }] });
+    S.lineChart($("chApps"), { title: "Applications per day", sub: "Easy Apply and clicks to an employer's apply page", days: d.days,
+      series: [{ name: "Easy Apply", values: d.series.application, color: c1 }, { name: "Apply clicks", values: d.series.apply_click, color: c2 }] });
+    S.lineChart($("chSignups"), { title: "Sign-ups per day", days: d.days, series: [{ name: "Sign-ups", values: d.series.signup, color: c1 }] });
+    $("stTop").innerHTML = d.top_jobs.length ? `<table><thead><tr><th>Job</th><th class="n">Views</th><th class="n">Applies</th><th class="n">Conv.</th></tr></thead><tbody>
+      ${d.top_jobs.map(j => `<tr><td><a href="/jobs/${j.id}" target="_blank" rel="noopener">${esc(j.title)}</a><div class="muted" style="font-size:13px">${esc(j.company)}</div></td><td class="n">${num(j.views)}</td><td class="n">${num(j.applies)}</td><td class="n">${j.conversion ?? "—"}${j.conversion != null ? "%" : ""}</td></tr>`).join("")}</tbody></table>`
+      : `<div class="empty-sm">No job views yet.</div>`;
+    $("stSearch").innerHTML = d.top_searches.length ? `<table><thead><tr><th>Search</th><th class="n">Times</th></tr></thead><tbody>
+      ${d.top_searches.map(x => `<tr><td>${esc(x.q)}</td><td class="n">${num(x.count)}</td></tr>`).join("")}</tbody></table>` : `<div class="empty-sm">No searches yet.</div>`;
+    $("stRec").innerHTML = d.recruiters.length ? `<table><thead><tr><th>Company</th><th class="n">Team</th><th class="n">Jobs posted</th><th class="n">Applications</th><th class="n">Viewed</th><th class="n">Stage moves</th><th class="n">Hours to first view</th><th class="n">Invites</th><th>Last sign-in</th></tr></thead><tbody>
+      ${d.recruiters.map(r => `<tr><td>${esc(r.company)}</td><td class="n">${r.members}</td><td class="n">${r.jobs_posted}</td><td class="n">${r.applications}</td><td class="n">${r.viewed_pct ?? "—"}${r.viewed_pct != null ? "%" : ""}</td><td class="n">${r.stage_moves}</td><td class="n">${r.hours_to_first_view ?? "—"}</td><td class="n">${r.invites}</td><td>${r.last_login ? S.ago(r.last_login) : "—"}</td></tr>`).join("")}</tbody></table>`
+      : `<div class="empty-sm">No approved employers yet.</div>`;
+  }
+  $("stDays").onchange = () => analytics().catch(err => S.toast(err.message));
+
+  // ---------------- Billing (test mode)
+  S.testBanner($("billNotice"));
+  async function billing() {
+    const b = await S.api("/admin/billing");
+    const total = b.revenue_by_product.reduce((a, r) => a + r.amount_php, 0);
+    $("billBody").innerHTML = `
+      ${b.problem ? `<div class="notice bad" style="margin-bottom:16px">${esc(b.problem)}</div>` : ""}
+      <div class="stats" style="margin-bottom:20px">
+        <div class="stat"><b>${S.peso(total)}</b><span>Test revenue, all time (not real money)</span></div>
+        <div class="stat"><b>${b.revenue_by_product.reduce((a, r) => a + r.orders, 0)}</b><span>Paid test orders</span></div>
+        <div class="stat"><b>${b.active_subscriptions}</b><span>Active plans</span></div>
+        <div class="stat"><b>${b.mode === "sandbox" ? "Simulator" : "PayMongo test"}</b><span>Payment mode</span></div>
+      </div>
+      <h3>Prices</h3>
+      <div class="table-wrap" style="margin-bottom:20px"><table><thead><tr><th>Product</th><th>Description</th><th class="n">Price (₱)</th><th>On sale</th><th></th></tr></thead><tbody>
+        ${b.products.map(p => `<tr data-code="${p.code}"><td><input class="input" data-f="name" value="${esc(p.name)}" maxlength="100" style="min-width:150px"></td>
+          <td><input class="input" data-f="description" value="${esc(p.description)}" maxlength="300" style="min-width:220px"></td>
+          <td class="n"><input class="input" data-f="price_php" type="number" min="0" max="1000000" value="${p.price_php}" style="width:110px;text-align:right"></td>
+          <td><label class="opt"><input type="checkbox" data-f="active"${p.active ? " checked" : ""}> Yes</label></td>
+          <td><button class="btn btn-ghost btn-sm" data-save="${p.code}">Save</button></td></tr>`).join("")}
+      </tbody></table></div>
+      <h3>Discount codes</h3>
+      <form id="dcForm" class="panel" style="margin-bottom:12px">
+        <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,170px),1fr));gap:12px;align-items:end">
+          <label class="f"><span>Code</span><input class="input" id="dcCode" required maxlength="40" pattern="[A-Za-z0-9_-]+" placeholder="LAUNCH50"></label>
+          <label class="f"><span>Discount</span><span style="display:flex;gap:6px"><input class="input" id="dcVal" type="number" min="1" required style="width:90px"><select class="input" id="dcKind" style="width:auto"><option value="pct">% off</option><option value="php">₱ off</option></select></span></label>
+          <label class="f"><span>Who can use it</span><select class="input" id="dcAud"><option value="any">Everyone</option><option value="employer">Employers</option><option value="seeker">Job seekers</option></select></label>
+          <label class="f"><span>Only for (optional)</span><select class="input" id="dcProd"><option value="">Any product</option>${b.products.map(p => `<option value="${p.code}">${esc(p.name)}</option>`).join("")}</select></label>
+          <label class="f"><span>Max uses (optional)</span><input class="input" id="dcMax" type="number" min="1"></label>
+          <label class="f"><span>Ends (optional)</span><input class="input" id="dcEnd" type="date"></label>
+        </div>
+        <label class="f" style="margin-top:10px"><span>Note for your team</span><input class="input" id="dcDesc" maxlength="200" placeholder="e.g. Job fair, November"></label>
+        <div class="actions" style="margin-top:10px"><label class="opt"><input type="checkbox" id="dcOnce" checked> Once per account</label><button class="btn btn-blue btn-sm">Create code</button></div>
+      </form>
+      ${b.discounts.length ? `<div class="table-wrap" style="margin-bottom:20px"><table><thead><tr><th>Code</th><th>Discount</th><th>For</th><th class="n">Used</th><th>Ends</th><th>On</th></tr></thead><tbody>
+        ${b.discounts.map(d => `<tr><td style="font-family:var(--f-mono)">${esc(d.code)}<div class="hint" style="font-size:12px">${esc(d.description)}</div></td>
+          <td>${d.percent_off ? d.percent_off + "% off" : S.peso(d.amount_off_php) + " off"}</td>
+          <td>${{ any: "Everyone", employer: "Employers", seeker: "Job seekers" }[d.audience]}${d.product_codes.length ? ` · ${esc(d.product_codes.join(", "))}` : ""}</td>
+          <td class="n">${d.uses}${d.max_uses ? ` / ${d.max_uses}` : ""}</td><td>${d.valid_until ? S.day(d.valid_until) : "—"}</td>
+          <td><label class="opt"><input type="checkbox" data-dc="${esc(d.code)}"${d.active ? " checked" : ""}> ${d.active ? "On" : "Off"}</label></td></tr>`).join("")}
+      </tbody></table></div>` : `<p class="muted">No codes yet.</p>`}
+      <h3>Orders</h3>
+      ${b.orders.length ? `<div class="table-wrap"><table><thead><tr><th>Order</th><th>Company</th><th>Item</th><th class="n">Amount</th><th>Paid with</th><th>Status</th><th>Date</th><th></th></tr></thead><tbody>
+        ${b.orders.map(o => `<tr><td style="font-family:var(--f-mono);font-size:13px">${esc(o.number)}</td><td>${esc(o.company || "")}</td><td>${esc(o.product)}</td><td class="n">${S.peso(o.amount_php)}</td>
+          <td>${esc(o.card ? "Test " + o.card : o.method || "—")}${o.discount_code ? `<div class="hint" style="font-size:12px">${esc(o.discount_code)} −${S.peso(o.discount_php)}</div>` : ""}</td>
+          <td>${S.statusPill({ paid: "Paid", pending: "Pending", failed: "Failed", refunded: "Refunded", cancelled: "Cancelled" }[o.status] || o.status)}</td>
+          <td>${S.day(o.paid_at || o.created_at)}</td><td style="white-space:nowrap">${o.invoice_url ? `<a href="${o.invoice_url}">Invoice</a> ` : ""}${o.status === "paid" ? `<button class="btn btn-ghost btn-sm" data-refund="${o.id}">Refund</button>` : ""}</td></tr>`).join("")}
+      </tbody></table></div>` : `<p class="muted">No orders yet.</p>`}`;
+    $("billBody").onclick = async e => {
+      const btn = e.target.closest("button"); if (!btn) return;
+      try {
+        if (btn.dataset.save) {
+          const row = btn.closest("tr"), f = k => row.querySelector(`[data-f=${k}]`);
+          const prod = b.products.find(p => p.code === btn.dataset.save);
+          await S.api(`/admin/billing/products/${prod.code}`, { method: "PUT", body: { ...prod, name: f("name").value, description: f("description").value, price_php: +f("price_php").value, active: f("active").checked } });
+          S.toast("Price saved");
+        } else if (btn.dataset.refund) {
+          if (btn.dataset.confirm !== "1") { btn.dataset.confirm = "1"; btn.textContent = "Confirm refund"; return; }
+          await S.api(`/admin/billing/orders/${btn.dataset.refund}/refund`, { method: "POST" });
+          S.toast("Refunded (test). The buyer was told."); billing();
+        }
+      } catch (err) { S.toast(err.message); }
+    };
+    $("billBody").onchange = async e => {
+      const c = e.target.closest("[data-dc]"); if (!c) return;
+      try { await S.api(`/admin/billing/discounts/${c.dataset.dc}`, { method: "PATCH", body: { active: c.checked } }); billing(); } catch (err) { S.toast(err.message); }
+    };
+    $("dcForm").addEventListener("submit", async e => {
+      e.preventDefault();
+      const v = +$("dcVal").value, pct = $("dcKind").value === "pct";
+      const body = { code: $("dcCode").value, description: $("dcDesc").value, audience: $("dcAud").value,
+        percent_off: pct ? v : null, amount_off_php: pct ? null : v, product_codes: $("dcProd").value ? [$("dcProd").value] : [],
+        max_uses: $("dcMax").value ? +$("dcMax").value : null, once_per_account: $("dcOnce").checked,
+        valid_until: $("dcEnd").value ? $("dcEnd").value + "T23:59:59+08:00" : null };
+      try { await S.api("/admin/billing/discounts", { method: "POST", body }); S.toast("Code created"); billing(); } catch (err) { S.toast(err.message); }
+    });
+  }
+
+  // ---------------- Import
+  async function importTab() {
+    const cos = await S.api("/admin/import/companies");
+    const opts = `<option value="">New company…</option>` + cos.map(c => `<option value="${c.id}">${esc(c.name)}</option>`).join("");
+    for (const [sel, wrap] of [["impCo", "impNewWrap"], ["feedCo", "feedNewWrap"]]) {
+      const keep = $(sel).value; $(sel).innerHTML = opts; $(sel).value = keep;
+      $(sel).onchange = () => { $(wrap).hidden = !!$(sel).value; }; $(sel).onchange();
+    }
+    await feeds();
+  }
+  const resultHtml = r => {
+    if (r.error) return `<div class="notice bad">${esc(r.error)}</div>`;
+    const head = r.dry_run ? `<b>${r.valid} of ${r.rows} rows are ready${r.company ? ` for ${esc(r.company.name)}` : ""}.</b> Nothing has been saved yet.`
+      : `<b>Done:</b> ${r.created} added, ${r.updated} updated${r.closed ? `, ${r.closed} closed` : ""}.`;
+    return `<div class="notice${r.errors && r.errors.length ? " warn" : ""}">${head}</div>` + (r.errors && r.errors.length ? `<div class="table-wrap" style="margin-top:10px;max-height:260px;overflow:auto"><table>
+      <thead><tr><th class="n">Row</th><th>Title</th><th>Problem</th></tr></thead><tbody>${r.errors.map(x => `<tr><td class="n">${x.row}</td><td>${esc(x.title)}</td><td>${esc(x.error)}</td></tr>`).join("")}</tbody></table></div>` : "");
+  };
+  $("impFile").onchange = () => { $("impGo").disabled = true; $("impOut").innerHTML = ""; };
+  $("impForm").addEventListener("submit", async e => {
+    e.preventDefault();
+    const dry = e.submitter ? e.submitter.dataset.dry === "1" : true;
+    const fd = new FormData();
+    fd.append("file", $("impFile").files[0]); fd.append("dry_run", dry ? "true" : "false");
+    if ($("impCo").value) fd.append("company_id", $("impCo").value); else fd.append("new_company", $("impNew").value);
+    $("impOut").innerHTML = `<p class="muted">${dry ? "Checking" : "Importing"}…</p>`;
+    try {
+      const r = await S.api("/admin/import", { method: "POST", body: fd });
+      $("impOut").innerHTML = resultHtml(r); $("impGo").disabled = !dry || !r.valid;
+      if (!dry) { if (r.company && r.company.id) { await importTab(); $("impCo").value = r.company.id; $("impCo").onchange(); } tiles(); }
+    } catch (err) { $("impOut").innerHTML = `<div class="notice bad">${esc(err.message)}</div>`; }
+  });
+  async function feeds() {
+    const list = await S.api("/admin/import/feeds");
+    $("feeds").innerHTML = list.length ? `<div class="table-wrap"><table><thead><tr><th>Company</th><th>URL</th><th>Daily</th><th>Last run</th><th>Result</th><th></th></tr></thead><tbody>
+      ${list.map(f => { const r = f.last_result || {}; return `<tr><td>${esc(f.company)}</td><td style="max-width:260px;overflow-wrap:anywhere;font-size:13px">${esc(f.url)}</td><td>${f.sync_daily ? "Yes" : "No"}</td>
+        <td>${f.last_run_at ? S.ago(f.last_run_at) : "—"}</td><td style="font-size:13px">${r.error ? `<span class="err">${esc(r.error)}</span>` : r.rows != null ? `${r.created} new, ${r.updated} updated, ${r.closed} closed${r.errors && r.errors.length ? `, ${r.errors.length} bad rows` : ""}` : "—"}</td>
+        <td style="white-space:nowrap"><button class="btn btn-ghost btn-sm" data-run="${f.id}">Run now</button> <button class="btn btn-ghost btn-sm" data-del="${f.id}">Remove</button></td></tr>`; }).join("")}
+      </tbody></table></div>` : `<p class="muted">No feeds yet.</p>`;
+  }
+  $("feeds").addEventListener("click", async e => {
+    const b = e.target.closest("button"); if (!b) return;
+    try {
+      if (b.dataset.run) { b.disabled = true; const r = await S.api(`/admin/import/feeds/${b.dataset.run}/run`, { method: "POST" }); S.toast(r.error ? r.error : `${r.created} new, ${r.updated} updated, ${r.closed} closed`); }
+      else if (b.dataset.del) {
+        if (b.dataset.confirm !== "1") { b.dataset.confirm = "1"; b.textContent = "Confirm remove"; return; }
+        await S.api(`/admin/import/feeds/${b.dataset.del}`, { method: "DELETE" }); S.toast("Feed removed. Its jobs stay until they expire.");
+      }
+      feeds();
+    } catch (err) { S.toast(err.message); b.disabled = false; }
+  });
+  $("feedForm").addEventListener("submit", async e => {
+    e.preventDefault();
+    const body = { url: $("feedUrl").value, fmt: $("feedFmt").value, sync_daily: true };
+    if ($("feedCo").value) body.company_id = +$("feedCo").value; else body.new_company = $("feedNew").value;
+    try { const r = await S.api("/admin/import/feeds", { method: "POST", body }); S.toast(r.result.error ? "Feed added, but: " + r.result.error : "Feed added and synced"); e.target.reset(); importTab(); }
+    catch (err) { S.toast(err.message); }
+  });
+
+  let current = "pending";
+  const show = S.tabs(document.querySelector("[role=tablist]"), name => {
+    current = name;
+    const p = name === "crawler" ? crawler() : name === "notifications" ? S.notificationsPanel($("notifs"))
+      : name === "analytics" ? analytics() : name === "billing" ? billing() : name === "import" ? importTab() : list(name);
+    p.catch(err => S.toast(err.message));
+  });
+  tiles().catch(() => {});
+  show(location.hash.slice(1) || "pending");
+})();
+</script>
+</body>
+</html>

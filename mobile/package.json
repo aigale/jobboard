@@ -1,0 +1,25 @@
+{
+  "name": "sinag-jobs-app",
+  "version": "1.0.0",
+  "private": true,
+  "description": "Sinag Jobs for Android and iPhone: the live site in a native app, with native push notifications.",
+  "scripts": {
+    "set-url": "node scripts/set-url.js",
+    "icons": "npx @capacitor/assets generate --iconBackgroundColor '#0038A8' --splashBackgroundColor '#0038A8'",
+    "sync": "npx cap sync",
+    "android": "npx cap open android",
+    "ios": "npx cap open ios"
+  },
+  "dependencies": {
+    "@capacitor-firebase/messaging": "8.5.2",
+    "@capacitor/android": "8.5.3",
+    "@capacitor/app": "8.1.2",
+    "@capacitor/browser": "8.0.5",
+    "@capacitor/core": "8.5.3",
+    "@capacitor/ios": "8.5.3",
+    "@capacitor/splash-screen": "8.0.2"
+  },
+  "devDependencies": {
+    "@capacitor/cli": "8.5.3"
+  }
+}

@@ -1,0 +1,1034 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Employer dashboard · Sinag Jobs</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,600;12..96,800&family=Figtree:wght@400;500;600;700&family=IBM+Plex+Mono:wght@500&display=swap">
+<link rel="stylesheet" href="site.css">
+<link rel="manifest" href="/manifest.json">
+<link rel="icon" href="/icon-192.png">
+<meta name="theme-color" content="#0038A8">
+</head>
+<body>
+<script src="common.js"></script>
+<script src="i18n.js"></script>
+<div class="tricolor"></div>
+<header class="top"><div class="wrap">
+  <a class="brand" href="/" aria-label="Sinag Jobs home"><svg viewBox="-60 -60 120 120" aria-hidden="true"><g fill="#FCD116"><use href="#ray"/><use href="#ray" transform="rotate(45)"/><use href="#ray" transform="rotate(90)"/><use href="#ray" transform="rotate(135)"/><use href="#ray" transform="rotate(180)"/><use href="#ray" transform="rotate(225)"/><use href="#ray" transform="rotate(270)"/><use href="#ray" transform="rotate(315)"/><circle r="18"/></g></svg>Sinag<b>Jobs</b></a>
+  <nav class="links"><a href="/" class="hide-sm">Job board</a><span class="account" id="account"></span></nav>
+</div></header>
+
+<main>
+<div class="wrap page">
+  <div class="page-head">
+    <div><h1 id="coName">Employer dashboard</h1><p id="coSub">Post jobs, review applicants, and move them from new to hired.</p></div>
+    <button class="btn btn-red" type="button" data-goto="new" id="newBtn">Post a job</button>
+  </div>
+  <div id="vbanner"></div>
+  <div id="banner"></div>
+  <div class="tabs" role="tablist" aria-label="Employer dashboard">
+    <button role="tab" data-tab="jobs" aria-controls="pJobs" id="tJobs">Job posts</button>
+    <button role="tab" data-tab="new" aria-controls="pEdit" id="tEdit">Post a job</button>
+    <button role="tab" data-tab="pipeline" aria-controls="pPipe" id="tPipe">Applicants</button>
+    <button role="tab" data-tab="messages" aria-controls="pMsgs" id="tMsgs">Messages <span class="count" id="cMsgs"></span></button>
+    <button role="tab" data-tab="interviews" aria-controls="pIvs" id="tIvs">Interviews</button>
+    <button role="tab" data-tab="candidates" aria-controls="pCands" id="tCands">Find candidates</button>
+    <button role="tab" data-tab="tests" aria-controls="pTests" id="tTests">Skills tests</button>
+    <button role="tab" data-tab="company" aria-controls="pCompany" id="tCompany">Company page</button>
+    <button role="tab" data-tab="team" aria-controls="pTeam" id="tTeam">Team</button>
+    <button role="tab" data-tab="analytics" aria-controls="pStats" id="tStats">Analytics</button>
+    <button role="tab" data-tab="billing" aria-controls="pBill" id="tBill">Billing</button>
+    <button role="tab" data-tab="notifications" aria-controls="pNotifs" id="tNotifs">Notifications</button>
+  </div>
+
+  <section id="pJobs" role="tabpanel" aria-labelledby="tJobs" hidden>
+    <div id="jobsPlan" style="margin-bottom:12px"></div>
+    <div id="jobs" class="rows"></div>
+    <details class="panel" id="importBox" style="margin-top:18px">
+      <summary style="cursor:pointer;font-weight:700">Bulk import jobs from a CSV or XML file</summary>
+      <div style="margin-top:12px">
+        <p class="muted" style="margin:0 0 10px">Add or update many jobs at once. Use our <a href="/api/import/template.csv">CSV template</a> or an Indeed-style XML feed. Rows with the same reference update the existing job. Available on the Pro plan.</p>
+        <form id="impForm" style="display:flex;gap:10px;flex-wrap:wrap;align-items:end">
+          <label class="f" style="flex:1;min-width:220px"><span>File</span><input class="input" type="file" id="impFile" accept=".csv,.xml,text/csv,text/xml,application/xml" required></label>
+          <button class="btn btn-blue" type="submit" data-dry="1">Check file</button>
+          <button class="btn btn-red" type="submit" data-dry="0" id="impGo" disabled>Import jobs</button>
+        </form>
+        <div id="impOut" style="margin-top:12px"></div>
+      </div>
+    </details>
+  </section>
+
+  <section id="pEdit" role="tabpanel" aria-labelledby="tEdit" hidden>
+    <form id="jobForm" novalidate>
+      <div class="panel">
+        <h2 id="editTitle">Post a job</h2><p class="sub">Clear titles, a salary range and specific skills get more and better applicants.</p>
+        <div class="grid2">
+          <label class="f span2"><span>Job title *</span><input id="jTitle" maxlength="200" placeholder="e.g. Customer Support Associate (Night shift)"></label>
+          <label class="f"><span>Location *</span><select id="jLoc"></select></label>
+          <label class="f"><span>City or office</span><input id="jCity" maxlength="120" placeholder="e.g. Cebu IT Park"></label>
+          <label class="f"><span>Work setup *</span><select id="jSetup"></select></label>
+          <label class="f"><span>Schedule</span><select id="jShift"></select></label>
+          <label class="f"><span>Job type *</span><select id="jType"></select></label>
+          <label class="f"><span>Experience level *</span><select id="jLevel"></select></label>
+          <label class="f"><span>Field *</span><select id="jCat"></select></label>
+          <div class="f"><span>Monthly pay (₱)</span><div class="split"><input id="jMin" type="number" min="0" step="500" placeholder="From" aria-label="Pay from" inputmode="numeric"><input id="jMax" type="number" min="0" step="500" placeholder="To" aria-label="Pay up to" inputmode="numeric"></div><small>Jobs with pay shown get more applicants.</small></div>
+          <label class="f span2"><span>Description *</span><textarea id="jDesc" rows="10" maxlength="20000" placeholder="What the person will do, what they need, and how your team works.&#10;&#10;Start lines with - to make a bullet list."></textarea><small>At least 50 characters. Leave a blank line between paragraphs.</small></label>
+          <div class="f span2"><span>Skills you're looking for</span><div id="jSkills"></div><small>Used to score applicants automatically. Press Enter after each one.</small></div>
+          <div class="f span2"><span>Benefits</span><div class="checks" id="jPerks"></div></div>
+        </div>
+      </div>
+      <div class="panel">
+        <h2>Application questions</h2><p class="sub">Optional. Ask up to 10 questions. A <b>required answer</b> marks anyone who answers differently, so you can screen them out quickly.</p>
+        <div class="qbuilder" id="qList"></div>
+        <button class="btn btn-ghost btn-sm" type="button" id="qAdd" style="margin-top:12px">Add a question</button>
+      </div>
+      <div class="panel">
+        <h2>Screening</h2><p class="sub">Optional. Results show on each applicant's card.</p>
+        <div class="grid2">
+          <label class="f"><span>Skills test</span><select id="jTest"><option value="">No test</option></select><small>Make tests in the Skills tests tab.</small></label>
+          <label class="opt" style="align-self:center"><input type="checkbox" id="jTestAuto"> Send it automatically to everyone who applies</label>
+        </div>
+        <label class="opt" style="margin-top:16px"><input type="checkbox" id="jChat"> Ask follow-up questions in a short chat after people apply</label>
+        <div class="f" id="jTopicsWrap" style="margin-top:10px" hidden><span>What to ask about</span><div id="jTopics"></div>
+          <small id="chatModeHint">One topic or question per item, e.g. "Notice period", "Can you work weekends?". Asked in this order.</small></div>
+      </div>
+      <div class="panel">
+        <h2>Publishing</h2>
+        <div class="checks" role="radiogroup" aria-label="When to publish" style="margin-top:8px">
+          <label class="check"><input type="radio" name="when" value="now" checked> Publish now</label>
+          <label class="check"><input type="radio" name="when" value="later"> Schedule</label>
+          <label class="check"><input type="radio" name="when" value="draft"> Save as draft</label>
+        </div>
+        <div class="grid2" style="margin-top:14px">
+          <label class="f" id="whenAt" hidden><span>Publish on</span><input id="jPub" type="datetime-local"></label>
+          <label class="f"><span>Closing date (optional)</span><input id="jExp" type="date"><small>The post comes down automatically at midnight on this day.</small></label>
+        </div>
+      </div>
+      <div class="actions"><button class="btn btn-red" type="submit" id="jSave">Publish job</button><button class="btn btn-ghost" type="button" data-goto="jobs">Cancel</button><span class="err" id="jErr" hidden></span></div>
+    </form>
+  </section>
+
+  <section id="pPipe" role="tabpanel" aria-labelledby="tPipe" hidden>
+    <div style="display:flex;flex-wrap:wrap;gap:12px;align-items:end;margin-bottom:16px">
+      <label class="f" style="min-width:min(100%,340px)"><span>Job</span><select id="pipeJob"></select></label>
+      <label class="f"><span>Sort cards by</span><select id="pipeSort"><option value="score">Match score</option><option value="new">Newest</option></select></label>
+      <p class="hint" style="margin:0 0 10px">Drag a card to another column, or open it to change its stage and message the candidate.</p>
+    </div>
+    <div id="kanban" class="kanban"></div>
+  </section>
+
+  <section id="pCompany" role="tabpanel" aria-labelledby="tCompany" hidden>
+    <form id="coForm" class="panel">
+      <h2 id="coFormTitle">Company profile</h2><p class="sub">Job seekers see this on every job you post. We check new companies before their jobs go public, usually within one working day.</p>
+      <div class="grid2">
+        <label class="f"><span>Company name *</span><input id="cName" maxlength="200" required></label>
+        <label class="f"><span>Industry *</span><select id="cInd" required><option value="">Choose…</option></select></label>
+        <label class="f"><span>Website</span><input id="cWeb" maxlength="300" placeholder="https://yourcompany.com.ph"><small>Helps us verify you faster.</small></label>
+        <label class="f"><span>Office location</span><input id="cLoc" maxlength="200" placeholder="e.g. Makati City"></label>
+        <label class="f span2"><span>About the company</span><textarea id="cAbout" maxlength="5000" placeholder="What you do, how big the team is, what it's like to work there."></textarea></label>
+      </div>
+      <div class="actions"><button class="btn btn-blue" type="submit" id="cSave">Save company</button><span class="err" id="cErr" hidden></span></div>
+    </form>
+    <form id="brandForm" hidden>
+      <div class="panel">
+        <h2>Your public company page</h2><p class="sub">Show job seekers what it's like to work with you. <a id="pageLink" href="#" target="_blank" rel="noopener">View your page</a></p>
+        <div class="grid2">
+          <label class="f span2"><span>Tagline</span><input id="bTag" maxlength="200" placeholder="e.g. Payments for every sari-sari store"></label>
+          <label class="f"><span>Company size</span><select id="bSize"><option value="">Choose…</option></select></label>
+          <label class="f"><span>Year founded</span><input id="bFounded" type="number" min="1800" max="2100" inputmode="numeric"></label>
+          <label class="f span2"><span>Video tour (YouTube or Vimeo link)</span><input id="bVideo" maxlength="500" placeholder="https://www.youtube.com/watch?v=…"></label>
+        </div>
+      </div>
+      <div class="panel">
+        <h2>Logo, cover and photos</h2><p class="sub">PNG or JPG. Logo: square, at least 256 × 256. Cover: wide, about 1600 × 400. Up to 12 workplace photos.</p>
+        <div class="grid3">
+          <div class="f"><span>Logo</span><div class="thumbs" id="logoThumb"></div><input type="file" id="upLogo" accept=".png,.jpg,.jpeg" class="input"></div>
+          <div class="f"><span>Cover image</span><div class="thumbs" id="coverThumb"></div><input type="file" id="upCover" accept=".png,.jpg,.jpeg" class="input"></div>
+          <div class="f"><span>Add a photo</span><input type="file" id="upPhoto" accept=".png,.jpg,.jpeg" class="input"></div>
+        </div>
+        <div class="thumbs" id="photoThumbs" style="margin-top:14px"></div>
+      </div>
+      <div class="panel">
+        <h2>What you value</h2><p class="sub">Up to 8, e.g. "Malasakit: we care for customers like family."</p>
+        <div class="listedit" id="valList"></div><button class="btn btn-ghost btn-sm" type="button" id="valAdd" style="margin-top:10px">Add a value</button>
+      </div>
+      <div class="panel">
+        <h2>From your team</h2><p class="sub">Quotes from real employees, with their permission. Up to 8.</p>
+        <div class="listedit" id="tstList"></div><button class="btn btn-ghost btn-sm" type="button" id="tstAdd" style="margin-top:10px">Add a quote</button>
+      </div>
+      <div class="panel">
+        <h2>Links</h2>
+        <div class="grid2" id="linkFields"></div>
+      </div>
+      <div class="actions"><button class="btn btn-blue" type="submit">Save company page</button><span class="err" id="bErr" hidden></span></div>
+    </form>
+  </section>
+
+  <section id="pCands" role="tabpanel" aria-labelledby="tCands" hidden>
+    <div id="candLocked"></div>
+    <form id="candForm" class="panel" style="margin-bottom:16px">
+      <h2>Search the resume database</h2><p class="sub">Job seekers who chose to be found. Invite them to apply; you see their contact details once they do.</p>
+      <div class="grid3">
+        <label class="f"><span>Keywords</span><input id="cdQ" maxlength="100" placeholder="e.g. Zendesk, nurse, React"><small>Searches headlines, summaries and resumes.</small></label>
+        <div class="f"><span>Must have skills</span><div id="cdSkills"></div></div>
+        <label class="f"><span>Location</span><select id="cdLoc"><option value="">Anywhere</option></select></label>
+        <label class="f"><span>At least this many years</span><input id="cdYears" type="number" min="0" max="60" inputmode="numeric"></label>
+        <label class="f"><span>Expects at most (₱/month)</span><input id="cdPay" type="number" min="0" step="1000" inputmode="numeric"></label>
+        <div class="f" style="justify-content:end"><button class="btn btn-blue" type="submit">Search</button></div>
+      </div>
+    </form>
+    <p class="hint" id="cdCount"></p>
+    <div class="rows" id="cands"></div>
+    <button class="btn btn-ghost more" id="cdMore" type="button" hidden>Show more</button>
+  </section>
+
+  <section id="pTests" role="tabpanel" aria-labelledby="tTests" hidden>
+    <div class="actions" style="margin:0 0 16px"><button class="btn btn-red" type="button" id="newTest">New skills test</button></div>
+    <div class="rows" id="testList"></div>
+    <form id="testForm" class="panel" hidden style="margin-top:16px">
+      <h2 id="testFormTitle">New skills test</h2><p class="sub">Multiple choice, graded automatically. Candidates see the timer start when they press Start.</p>
+      <div class="grid3">
+        <label class="f span2"><span>Title *</span><input id="tTitle" maxlength="200" placeholder="e.g. Customer support basics"></label>
+        <label class="f"><span>Time limit (minutes)</span><input id="tTime" type="number" min="1" max="180" value="15" inputmode="numeric"></label>
+        <label class="f span2"><span>Instructions</span><textarea id="tInstr" maxlength="3000" style="min-height:80px" placeholder="What the test covers and any rules, e.g. no outside help."></textarea></label>
+        <label class="f"><span>Pass mark (%)</span><input id="tPass" type="number" min="0" max="100" value="60" inputmode="numeric"></label>
+      </div>
+      <h3 style="font-family:var(--f-body);font-size:16px;margin:18px 0 10px">Questions</h3>
+      <div class="qbuilder" id="tqList"></div>
+      <button class="btn btn-ghost btn-sm" type="button" id="tqAdd" style="margin-top:12px">Add a question</button>
+      <div class="actions"><button class="btn btn-red" type="submit" id="tSave">Save test</button><button class="btn btn-ghost" type="button" id="tCancel">Cancel</button><span class="err" id="tErr" hidden></span></div>
+    </form>
+  </section>
+
+  <section id="pTeam" role="tabpanel" aria-labelledby="tTeam" hidden>
+    <div class="panel"><h2>Team members</h2><p class="sub">Everyone on the team can post jobs and review applicants. Only the owner can change the team.</p><div class="rows" id="members" style="margin-top:12px"></div></div>
+    <form class="panel" id="inviteForm" hidden><h2>Invite a teammate</h2><p class="sub">They'll get an email link to join. Use their work email.</p>
+      <div class="grid2"><label class="f"><span>Email</span><input id="invEmail" type="email" required placeholder="name@yourcompany.com.ph"></label>
+      <div class="f" style="justify-content:end"><button class="btn btn-blue" type="submit">Send invite</button></div></div></form>
+  </section>
+
+  <section id="pMsgs" role="tabpanel" aria-labelledby="tMsgs" hidden><div id="inbox"></div></section>
+  <section id="pIvs" role="tabpanel" aria-labelledby="tIvs" hidden>
+    <p class="hint" style="margin-top:0">Schedule interviews from an applicant's panel (Applicants tab). Times are in Philippine time; confirmed interviews send calendar invites to you and the applicant.</p>
+    <div id="ivs" class="rows"></div>
+  </section>
+
+  <section id="pStats" role="tabpanel" aria-labelledby="tStats" hidden>
+    <div style="display:flex;justify-content:space-between;align-items:center;gap:12px;flex-wrap:wrap;margin-bottom:14px">
+      <h2 style="margin:0">How your jobs are doing</h2>
+      <label class="f" style="flex-direction:row;align-items:center;gap:8px"><span>Period</span>
+        <select class="input" id="stDays" style="width:auto"><option value="7">Last 7 days</option><option value="30" selected>Last 30 days</option><option value="90">Last 90 days</option></select></label>
+    </div>
+    <div class="stats" id="stTiles" style="margin-bottom:16px"></div>
+    <div class="charts"><div id="chViews"></div><div id="chApps"></div></div>
+    <h3>By job</h3>
+    <div class="table-wrap" id="stJobs"></div>
+  </section>
+
+  <section id="pBill" role="tabpanel" aria-labelledby="tBill" hidden>
+    <div id="billNotice"></div>
+    <div id="billBody"></div>
+  </section>
+
+  <section id="pNotifs" role="tabpanel" aria-labelledby="tNotifs" hidden><div class="panel" id="pushCtl" style="margin-bottom:16px"></div><div id="notifs"></div></section>
+</div>
+</main>
+
+<div id="drawerRoot"></div>
+
+<script>
+(async () => {
+  const { esc, peso } = S;
+  const $ = id => document.getElementById(id);
+  const user = await S.requireRole("employer");
+  if (!user) return;
+  S.renderAccount($("account"));
+  S.verifyBanner($("vbanner"), user);
+  const O = await S.api("/employer/options");
+  let company = (await S.api("/employer/company")).company;
+  let jobs = [];
+
+  const fill = (el, list, blank) => el.innerHTML = (blank ? `<option value="">${blank}</option>` : "") + list.map(v => `<option>${esc(v)}</option>`).join("");
+  fill($("jLoc"), O.locations); fill($("jSetup"), O.setups); fill($("jShift"), O.shifts); fill($("jType"), O.job_types);
+  fill($("jLevel"), O.levels); fill($("jCat"), O.categories); fill($("cInd"), O.industries, "Choose…");
+  $("jPerks").innerHTML = O.perks.map((p, i) => `<label class="check"><input type="checkbox" name="perk" id="perk-${i}" value="${esc(p)}"> ${esc(p)}</label>`).join("");
+  const skillBox = { box: S.tagInput($("jSkills"), [], "Add a skill and press Enter") };
+  const topicBox = { box: S.tagInput($("jTopics"), [], "Add a topic and press Enter") };
+  $("jChat").onchange = () => { $("jTopicsWrap").hidden = !$("jChat").checked; };
+  if (O.ai_enabled) $("chatModeHint").textContent = "An AI assistant asks about these topics in a friendly chat and writes you a short summary. It never decides for you.";
+  let testOpts = [];
+  async function loadTestOptions() {
+    try { testOpts = company ? await S.api("/employer/assessments") : []; } catch (e) { testOpts = []; }
+    const cur = $("jTest").value;
+    $("jTest").innerHTML = `<option value="">No test</option>` + testOpts.map(t => `<option value="${t.id}">${esc(t.title)} (${t.question_count} questions)</option>`).join("");
+    $("jTest").value = cur;
+  }
+
+  function renderBanner() {
+    const b = $("banner");
+    if (!company) { b.innerHTML = `<div class="notice" style="margin-bottom:18px">Welcome! Start by telling job seekers about your company.</div>`; return; }
+    $("coName").textContent = company.name;
+    if (company.approval === "pending") b.innerHTML = `<div class="notice warn" style="margin-bottom:18px"><b>We're checking ${esc(company.name)}.</b> You can post jobs now; they go public as soon as we verify your company.</div>`;
+    else if (company.approval === "rejected") b.innerHTML = `<div class="notice bad" style="margin-bottom:18px"><b>We couldn't verify ${esc(company.name)} yet:</b> ${esc(company.approval_note || "")} Update your company profile to resubmit.</div>`;
+    else b.innerHTML = "";
+  }
+  renderBanner();
+
+  // ---------------- Company
+  function loadCompanyForm() {
+    if (!company) { $("coFormTitle").textContent = "Set up your company"; $("cSave").textContent = "Create company"; return; }
+    $("cName").value = company.name; $("cInd").value = company.industry || ""; $("cWeb").value = company.website || "";
+    $("cLoc").value = company.location_text || ""; $("cAbout").value = company.about || "";
+    $("cName").readOnly = company.approval === "approved";
+    $("coFormTitle").textContent = "Company profile"; $("cSave").textContent = "Save company";
+  }
+  $("coForm").addEventListener("submit", async e => {
+    e.preventDefault(); $("cErr").hidden = true;
+    const body = { name: $("cName").value, industry: $("cInd").value, website: $("cWeb").value, location_text: $("cLoc").value, about: $("cAbout").value };
+    try {
+      company = await S.api("/employer/company", { method: company ? "PUT" : "POST", body });
+      S.toast("Company saved"); renderBanner(); loadCompanyForm(); S.me(true); show("jobs", true);
+    } catch (err) { $("cErr").textContent = err.message; $("cErr").hidden = false; }
+  });
+
+  // ---------------- Job list
+  const isFeat = j => j.featured_until && new Date(j.featured_until) > new Date();
+  let billingOn = false, bill = null;
+  async function loadBill() {
+    try { bill = await S.api("/billing/summary"); billingOn = bill.billing_enabled; } catch (e) { bill = null; billingOn = false; }
+    return bill;
+  }
+  function planLine() {
+    if (!bill || !bill.billing_enabled) return "";
+    const lim = bill.live_limit;
+    const parts = [bill.plan ? `<b>${esc(bill.plan.name)}</b>` : "<b>No plan</b>",
+      `${bill.live_jobs}${lim != null ? ` of ${lim}` : ""} live job${bill.live_jobs === 1 ? "" : "s"}`,
+      `${bill.credits} job credit${bill.credits === 1 ? "" : "s"}`];
+    if (!bill.plan) parts.push(`${bill.free_live_jobs} free live job${bill.free_live_jobs === 1 ? "" : "s"}`);
+    if (bill.plan) parts.push(`${bill.featured_boosts_left} featured boost${bill.featured_boosts_left === 1 ? "" : "s"} left`);
+    return `<div class="notice" style="display:flex;justify-content:space-between;gap:10px;flex-wrap:wrap;align-items:center"><span>${parts.join(" · ")}</span><a href="#billing" data-goto="billing">Billing</a></div>`;
+  }
+  async function loadJobs() {
+    await loadBill();
+    $("jobsPlan").innerHTML = planLine();
+    jobs = await S.api("/employer/jobs");
+    $("jobs").innerHTML = jobs.length ? jobs.map(j => `
+      <div class="rowcard"><div style="min-width:0">
+        <h3>${esc(j.title)} ${S.statusPill(j.state)}${isFeat(j) ? ` <span class="pill feat">Featured until ${S.day(j.featured_until)}</span>` : ""}</h3>
+        <div class="meta"><span>${esc(j.city || j.location)}</span><span>${esc(j.setup)}</span><span>${esc(j.job_type)}</span>
+          ${j.state === "Scheduled" ? `<span>Goes live ${S.date(j.publish_at)}</span>` : `<span>Posted ${S.day(j.posted_at)}</span>`}
+          ${j.expires_at ? `<span>Closes ${S.day(j.expires_at)}</span>` : ""}<span>${j.views} views</span></div>
+      </div><div class="side">
+        <button class="btn btn-blue btn-sm" data-pipe="${j.id}">${j.applicants} applicant${j.applicants === 1 ? "" : "s"}${j.new_applicants ? ` · ${j.new_applicants} new` : ""}</button>
+        <div style="display:flex;gap:6px;flex-wrap:wrap">
+          <button class="btn btn-ghost btn-sm" data-edit="${j.id}">Edit</button>
+          ${j.state === "Live" ? `<a class="btn btn-ghost btn-sm" href="/jobs/${j.id}" target="_blank" rel="noopener">View</a>` : ""}
+          ${j.state === "Live" && !isFeat(j) && billingOn ? `<button class="btn btn-ghost btn-sm" data-feature="${j.id}">Feature</button>` : ""}
+          ${j.status === "open" ? `<button class="btn btn-ghost btn-sm" data-close="${j.id}">Close</button>` : ""}
+          ${j.status === "draft" ? `<button class="btn btn-ghost btn-sm" data-delete="${j.id}">Delete</button>` : ""}
+        </div></div></div>`).join("")
+      : `<div class="empty-sm">${company ? "No job posts yet." : "Set up your company first."}<br><br><button class="btn btn-red" data-goto="${company ? "new" : "company"}">${company ? "Post your first job" : "Set up company"}</button></div>`;
+    fillPipeSelect();
+  }
+  $("jobs").addEventListener("click", async e => {
+    const t = e.target.closest("button"); if (!t) return;
+    if (t.dataset.pipe) return show("pipeline-" + t.dataset.pipe, true);
+    if (t.dataset.feature) return featureJob(+t.dataset.feature, t);
+    if (t.dataset.edit) return show("edit-" + t.dataset.edit, true);
+    const act = t.dataset.close ? ["close", t.dataset.close] : t.dataset.delete ? ["delete", t.dataset.delete] : null;
+    if (!act) return;
+    if (t.dataset.confirm !== "1") { t.dataset.confirm = "1"; t.textContent = act[0] === "close" ? "Confirm close" : "Confirm delete"; return; }
+    try {
+      if (act[0] === "close") await S.api(`/employer/jobs/${act[1]}/close`, { method: "POST" });
+      else await S.api(`/employer/jobs/${act[1]}`, { method: "DELETE" });
+      S.toast(act[0] === "close" ? "Job closed" : "Draft deleted"); loadJobs();
+    } catch (err) { S.toast(err.message); }
+  });
+
+  // ---------------- Job editor
+  let editing = null;
+  const qList = $("qList");
+  function qItem(q = { text: "", kind: "yesno", options: [], required: true, knockout_answer: null }) {
+    const div = document.createElement("div"); div.className = "qitem";
+    const uid = Math.random().toString(36).slice(2, 8);
+    div.innerHTML = `
+      <div class="qrow">
+        <label class="f"><span>Question</span><input class="qText" maxlength="500" value="${esc(q.text)}" placeholder="e.g. Can you work night shift (US hours)?"></label>
+        <label class="f"><span>Answer type</span><select class="qKind"><option value="yesno">Yes / No</option><option value="choice">Multiple choice</option><option value="text">Written answer</option></select></label>
+        <button class="btn btn-ghost btn-sm qDel" type="button" aria-label="Remove question">Remove</button>
+      </div>
+      <label class="f qOptsWrap"><span>Choices, one per line</span><textarea class="qOpts" rows="3" style="min-height:70px">${esc((q.options || []).join("\n"))}</textarea></label>
+      <div style="display:flex;flex-wrap:wrap;gap:14px;align-items:center">
+        <label class="opt"><input type="checkbox" class="qReq" id="req-${uid}"${q.required ? " checked" : ""}> Required</label>
+        <label class="f qKoWrap" style="flex-direction:row;align-items:center;gap:8px"><span style="font-weight:600;font-size:14px">Required answer</span><select class="qKo input" style="width:auto"></select></label>
+      </div>`;
+    const kind = div.querySelector(".qKind"); kind.value = q.kind;
+    const sync = () => {
+      const k = kind.value, opts = k === "yesno" ? ["Yes", "No"] : div.querySelector(".qOpts").value.split("\n").map(s => s.trim()).filter(Boolean);
+      div.querySelector(".qOptsWrap").hidden = k !== "choice";
+      div.querySelector(".qKoWrap").hidden = k === "text";
+      const ko = div.querySelector(".qKo"), cur = ko.value || q.knockout_answer || "";
+      ko.innerHTML = `<option value="">Any answer is fine</option>` + opts.map(o => `<option${o === cur ? " selected" : ""}>${esc(o)}</option>`).join("");
+    };
+    kind.onchange = sync; div.querySelector(".qOpts").oninput = sync;
+    div.querySelector(".qDel").onclick = () => { div.remove(); $("qAdd").hidden = false; };
+    sync(); qList.appendChild(div);
+    $("qAdd").hidden = qList.children.length >= 10;
+  }
+  $("qAdd").onclick = () => qItem();
+  document.querySelectorAll("input[name=when]").forEach(r => r.addEventListener("change", syncWhen));
+  function syncWhen() {
+    const w = document.querySelector("input[name=when]:checked").value;
+    $("whenAt").hidden = w !== "later";
+    $("jSave").textContent = w === "draft" ? "Save draft" : w === "later" ? "Schedule job" : (editing && editing.status === "open" ? "Save changes" : "Publish job");
+  }
+  const toLocalInput = iso => { const d = new Date(iso); d.setMinutes(d.getMinutes() - d.getTimezoneOffset()); return d.toISOString().slice(0, 16); };
+
+  async function openEditor(job) {
+    await loadTestOptions();
+    $("jTest").value = job && job.assessment_id ? String(job.assessment_id) : "";
+    $("jTestAuto").checked = !!(job && job.assessment_auto);
+    $("jChat").checked = !!(job && job.chat_screening); $("jTopicsWrap").hidden = !$("jChat").checked;
+    topicBox.box = S.tagInput($("jTopics"), job ? job.chat_topics : [], "Add a topic and press Enter");
+    editing = job || null;
+    $("editTitle").textContent = job ? `Edit: ${job.title}` : "Post a job";
+    $("jTitle").value = job ? job.title : ""; $("jLoc").value = job ? job.location : O.locations[0]; $("jCity").value = job && job.city || "";
+    $("jSetup").value = job ? job.setup : "On-site"; $("jShift").value = job ? job.shift : "Day shift"; $("jType").value = job ? job.job_type : "Full-time";
+    $("jLevel").value = job ? job.level : "Mid level"; $("jCat").value = job ? job.category : O.categories[0];
+    $("jMin").value = job && job.salary_min || ""; $("jMax").value = job && job.salary_max || ""; $("jDesc").value = job ? job.description : "";
+    skillBox.box = S.tagInput($("jSkills"), job ? job.skills : [], "Add a skill and press Enter");
+    document.querySelectorAll("input[name=perk]").forEach(c => (c.checked = !!job && job.perks.includes(c.value)));
+    qList.innerHTML = ""; (job ? job.questions : []).forEach(qItem); $("qAdd").hidden = qList.children.length >= 10;
+    const when = !job ? "now" : job.status === "draft" ? "draft" : job.state === "Scheduled" ? "later" : "now";
+    document.querySelector(`input[name=when][value=${when}]`).checked = true;
+    $("jPub").value = job && job.publish_at ? toLocalInput(job.publish_at) : "";
+    $("jExp").value = job && job.expires_at ? toLocalInput(job.expires_at).slice(0, 10) : "";
+    $("jErr").hidden = true; syncWhen();
+  }
+  $("jobForm").addEventListener("submit", async e => {
+    e.preventDefault(); $("jErr").hidden = true;
+    if (!company) { $("jErr").textContent = "Set up your company profile first."; $("jErr").hidden = false; return; }
+    const w = document.querySelector("input[name=when]:checked").value;
+    if (w === "later" && !$("jPub").value) { $("jErr").textContent = "Pick the date and time to publish."; $("jErr").hidden = false; return; }
+    const num = v => v === "" ? null : Math.max(0, parseInt(v, 10) || 0);
+    const questions = [...qList.children].map(div => {
+      const kind = div.querySelector(".qKind").value;
+      return { text: div.querySelector(".qText").value.trim(), kind, required: div.querySelector(".qReq").checked,
+        options: kind === "choice" ? div.querySelector(".qOpts").value.split("\n").map(s => s.trim()).filter(Boolean) : [],
+        knockout_answer: kind === "text" ? null : (div.querySelector(".qKo").value || null) };
+    }).filter(q => q.text);
+    const exp = $("jExp").value ? new Date($("jExp").value + "T23:59:59").toISOString() : null;
+    const body = { title: $("jTitle").value, location: $("jLoc").value, city: $("jCity").value, setup: $("jSetup").value, shift: $("jShift").value,
+      job_type: $("jType").value, level: $("jLevel").value, category: $("jCat").value, salary_min: num($("jMin").value), salary_max: num($("jMax").value),
+      description: $("jDesc").value, skills: skillBox.box.get(), perks: [...document.querySelectorAll("input[name=perk]:checked")].map(c => c.value),
+      questions, expires_at: exp, action: w === "draft" ? "draft" : "publish",
+      assessment_id: $("jTest").value ? +$("jTest").value : null, assessment_auto: $("jTestAuto").checked && !!$("jTest").value,
+      chat_screening: $("jChat").checked, chat_topics: $("jChat").checked ? topicBox.box.get() : [],
+      publish_at: w === "later" ? new Date($("jPub").value).toISOString() : null };
+    $("jSave").disabled = true;
+    try {
+      const saved = await S.api(editing ? `/employer/jobs/${editing.id}` : "/employer/jobs", { method: editing ? "PUT" : "POST", body });
+      S.toast(saved.state === "Draft" ? "Draft saved" : saved.state === "Scheduled" ? "Job scheduled" : saved.state === "Waiting for approval" ? "Saved. It goes live once your company is verified." : "Job is live");
+      await loadJobs(); show("jobs", true);
+    } catch (err) {
+      if (err.status === 402) {
+        // Saved as a draft; they need a job credit or a plan to publish it.
+        if (err.data && err.data.job_id && !editing) editing = { id: err.data.job_id, status: "draft" };
+        $("jErr").innerHTML = `${esc(err.message)} <a href="#billing" data-goto="billing">Go to Billing</a>`;
+      } else $("jErr").textContent = err.message;
+      $("jErr").hidden = false;
+    }
+    finally { $("jSave").disabled = false; }
+  });
+
+  // ---------------- Pipeline
+  let pipe = null, pipeJobId = null;
+  function fillPipeSelect() {
+    const withApps = jobs.filter(j => j.status !== "draft");
+    $("pipeJob").innerHTML = withApps.length ? withApps.map(j => `<option value="${j.id}">${esc(j.title)} (${j.applicants})</option>`).join("") : `<option value="">No published jobs yet</option>`;
+    if (pipeJobId) $("pipeJob").value = pipeJobId;
+  }
+  $("pipeJob").onchange = () => show("pipeline-" + $("pipeJob").value, true);
+  $("pipeSort").onchange = () => drawKanban();
+  async function loadPipeline(id) {
+    if (!jobs.length) await loadJobs();
+    pipeJobId = id || (jobs.find(j => j.status !== "draft") || {}).id;
+    if (!pipeJobId) { $("kanban").innerHTML = `<div class="empty-sm" style="grid-column:1/-1">Publish a job to start receiving applicants.</div>`; return; }
+    fillPipeSelect();
+    pipe = await S.api(`/employer/jobs/${pipeJobId}/applications`);
+    drawKanban();
+  }
+  const scoreCls = s => s >= 70 ? "hi" : s >= 40 ? "mid" : "lo";
+  function drawKanban() {
+    const sort = $("pipeSort").value;
+    const apps = [...pipe.applications].sort((a, b) => (b.priority - a.priority) || (sort === "score" ? b.score - a.score : new Date(b.applied_at) - new Date(a.applied_at)));
+    $("kanban").innerHTML = pipe.stages.map(st => {
+      const cards = apps.filter(a => a.stage === st.key);
+      return `<div class="col" data-stage="${st.key}"><h3>${esc(st.label)} <b>${cards.length}</b></h3>
+        ${cards.map(a => `<div class="kcard" draggable="true" data-app="${a.id}" role="button" tabindex="0" aria-label="${esc(a.name)}, score ${a.score}. Open">
+          <span class="top"><b>${a.viewed ? "" : '<span class="unseen" title="Not opened yet"></span>'}${esc(a.name)}</b><span class="score ${scoreCls(a.score)}" title="Match score">${a.score}</span></span>
+          <small>${esc(a.headline)}</small>
+          ${a.priority ? `<span><span class="pill prio" title="The applicant used a priority application">Priority</span></span>` : ""}
+          ${a.flags.length ? `<small style="color:var(--hot);font-weight:600">${esc(a.flags[0])}</small>` : ""}
+          ${a.tags.length ? `<span class="tagsm">${a.tags.map(t => `<span>${esc(t)}</span>`).join("")}</span>` : ""}
+          ${a.test || a.chat ? `<span class="tagsm">${a.test ? `<span>${a.test.done ? `Test ${a.test.score}%` : "Test sent"}</span>` : ""}${a.chat ? `<span>${a.chat === "done" ? "Chat answered" : "Chat pending"}</span>` : ""}</span>` : ""}
+          <small>Applied ${S.ago(a.applied_at)}</small></div>`).join("")}</div>`;
+    }).join("");
+  }
+  let dragId = null;
+  $("kanban").addEventListener("dragstart", e => { const c = e.target.closest(".kcard"); if (!c) return; dragId = c.dataset.app; c.classList.add("dragging"); e.dataTransfer.effectAllowed = "move"; e.dataTransfer.setData("text/plain", dragId); });
+  $("kanban").addEventListener("dragend", e => { const c = e.target.closest(".kcard"); if (c) c.classList.remove("dragging"); document.querySelectorAll(".col.over").forEach(x => x.classList.remove("over")); });
+  $("kanban").addEventListener("dragover", e => { const col = e.target.closest(".col"); if (!col) return; e.preventDefault(); document.querySelectorAll(".col.over").forEach(x => x !== col && x.classList.remove("over")); col.classList.add("over"); });
+  $("kanban").addEventListener("drop", async e => {
+    const col = e.target.closest(".col"); if (!col || !dragId) return; e.preventDefault(); col.classList.remove("over");
+    const a = pipe.applications.find(x => String(x.id) === String(dragId)); dragId = null;
+    if (!a || a.stage === col.dataset.stage) return;
+    await moveStage(a.id, col.dataset.stage);
+  });
+  $("kanban").addEventListener("click", e => { const c = e.target.closest(".kcard"); if (c) openApplicant(+c.dataset.app); });
+  $("kanban").addEventListener("keydown", e => { const c = e.target.closest(".kcard"); if (c && (e.key === "Enter" || e.key === " ")) { e.preventDefault(); openApplicant(+c.dataset.app); } });
+  async function moveStage(id, stage, message) {
+    try {
+      const card = await S.api(`/employer/applications/${id}`, { method: "PATCH", body: { stage, message: message || null } });
+      Object.assign(pipe.applications.find(x => x.id === id), card); drawKanban();
+      S.toast(`Moved to ${O.stage_labels[stage]}${["shortlisted", "interview", "offer", "hired", "rejected"].includes(stage) ? ". The candidate was notified." : ""}`);
+      return card;
+    } catch (err) { S.toast(err.message); }
+  }
+
+  async function openApplicant(id) {
+    const root = $("drawerRoot");
+    root.innerHTML = `<div class="drawer-scrim" id="dScrim"></div><aside class="drawer" role="dialog" aria-modal="true" aria-label="Applicant"><p>Loading…</p></aside>`;
+    const close = () => { root.innerHTML = ""; };
+    $("dScrim").onclick = close;
+    let a;
+    try { a = await S.api(`/employer/applications/${id}`); } catch (err) { root.querySelector(".drawer").innerHTML = `<p class="err">${esc(err.message)}</p>`; return; }
+    const card = pipe.applications.find(x => x.id === id); if (card) { card.viewed = true; drawKanban(); }
+    const p = a.profile || {}, sd = a.score_details || {};
+    root.querySelector(".drawer").innerHTML = `
+      <div style="display:flex;justify-content:space-between;gap:12px;align-items:start">
+        <div><h2>${esc(p.full_name)}</h2><p style="margin:4px 0 0;color:var(--muted);font-weight:600">${esc(p.headline || "")}</p></div>
+        <button class="x" type="button" id="dClose" aria-label="Close">×</button></div>
+      <div class="facts" style="margin-top:16px">
+        <div><small>Match score</small><b><span class="score ${scoreCls(a.score)}">${a.score}/100</span></b></div>
+        <div><small>Location</small><b>${esc(p.location || "Not given")}</b></div>
+        <div><small>Experience</small><b>${p.years_experience != null ? esc(p.years_experience) + (p.years_experience == 1 ? " yr" : " yrs") : "Not given"}</b></div>
+        <div><small>Expected pay</small><b>${p.desired_salary ? peso(p.desired_salary) : "Not given"}</b></div>
+        <div><small>Email</small><b style="overflow-wrap:anywhere">${esc(p.email || "")}</b></div>
+        <div><small>Mobile</small><b>${esc(p.phone || "Not given")}</b></div>
+      </div>
+      <div class="actions" style="margin-top:14px">
+        <a class="btn btn-blue btn-sm" href="#messages-${a.id}" data-msg="${a.id}">Message</a>
+        <button class="btn btn-red btn-sm" type="button" id="dIvNew">Schedule interview</button>
+      </div>
+      <div id="dIv"></div>
+      ${(sd.reasons || []).length ? `<ul class="reasons">${sd.reasons.map(r => `<li>${esc(r)}</li>`).join("")}</ul>` : ""}
+      ${(sd.flags || []).length ? `<ul class="flags">${sd.flags.map(r => `<li>${esc(r)}</li>`).join("")}</ul>` : ""}
+      <h4>Stage</h4>
+      <div class="grid2"><label class="f"><span>Move to</span><select id="dStage">${O.stages.map(s => `<option value="${s}"${s === a.stage ? " selected" : ""}>${esc(O.stage_labels[s])}</option>`).join("")}</select></label></div>
+      <label class="f" id="dMsgWrap" hidden style="margin-top:10px"><span>Message to the candidate (optional)</span><textarea id="dMsg" rows="3" style="min-height:80px" placeholder="e.g. We'd like to schedule an interview this week. Reply with your available times."></textarea><small>Sent by email with the status update.</small></label>
+      <div class="actions" style="margin-top:10px"><button class="btn btn-blue btn-sm" id="dMove" type="button">Update stage</button><span class="hint">The candidate sees: ${S.statusPill(a.candidate_status)}</span></div>
+      <h4>Tags</h4><div id="dTags"></div><div class="actions" style="margin-top:8px"><button class="btn btn-ghost btn-sm" id="dTagSave" type="button">Save tags</button></div>
+      <h4>Files</h4>
+      <div class="docs">${a.documents.length ? a.documents.map(d => `<a class="doc" href="/api/employer/applications/${a.id}/documents/${d.id}" target="_blank" rel="noopener"><span class="ico">${esc(d.filename.split(".").pop().toUpperCase())}</span><span class="nm"><b>${esc(d.filename)}</b><small>${esc(d.kind)} · ${S.size(d.size)}</small></span></a>`).join("") : '<p class="hint">No files.</p>'}</div>
+      ${(p.skills || []).length ? `<h4>Skills</h4><div style="display:flex;flex-wrap:wrap;gap:6px">${p.skills.map(s => `<span class="pill">${esc(s)}</span>`).join("")}</div>` : ""}
+      ${a.answers.length ? `<h4>Answers</h4>${a.answers.map(x => `<div class="qa"><b>${esc(x.question)}</b><span class="prose">${esc(x.answer || "No answer")}</span></div>`).join("")}` : ""}
+      ${a.cover_letter ? `<h4>Cover letter</h4><p class="prose" style="white-space:pre-wrap;margin:0">${esc(a.cover_letter)}</p>` : ""}
+      ${p.summary ? `<h4>Summary</h4><p class="prose" style="white-space:pre-wrap;margin:0">${esc(p.summary)}</p>` : ""}
+      ${O.ai_enabled ? `<h4>AI summary</h4><div id="aiBox">${a.ai_summary ? `<div class="ai-box">${esc(a.ai_summary)}</div>` : ""}</div>
+        <div class="actions" style="margin-top:8px"><button class="btn btn-ghost btn-sm" id="dAi" type="button">${a.ai_summary ? "Refresh summary" : "Summarize fit with AI"}</button><span class="hint">AI-written from the resume and answers. Check it against the resume before deciding.</span></div>` : ""}
+      <h4>Skills tests</h4>
+      ${a.tests.length ? a.tests.map(t => `<div class="qa"><b>${esc(t.title)}: ${t.status === "Completed" ? `${t.score}% ${t.passed ? "(passed)" : "(below pass mark)"}${t.late ? ", submitted late" : ""}` : esc(t.status)}</b>
+        ${t.review ? `<details><summary class="hint" style="cursor:pointer">See answers</summary><ol class="review" style="padding-left:20px;margin:8px 0 0">${t.review.map(r => `<li>${esc(r.text)}<br><span class="${r.chosen === r.correct ? "ok" : "bad"}">${r.chosen == null ? "No answer" : esc(r.options[r.chosen])}</span>${r.chosen !== r.correct ? ` · correct: ${esc(r.options[r.correct])}` : ""}</li>`).join("")}</ol></details>` : ""}</div>`).join("") : '<p class="hint" style="margin:0">No test sent yet.</p>'}
+      ${testOpts.length ? `<div class="actions" style="margin-top:8px"><select id="dTest" class="input" style="width:auto">${testOpts.map(t => `<option value="${t.id}">${esc(t.title)}</option>`).join("")}</select><button class="btn btn-ghost btn-sm" id="dSendTest" type="button">Send test</button></div>` : ""}
+      ${a.chat ? `<h4>Follow-up chat ${a.chat.status === "done" ? "" : "(not finished yet)"}</h4>
+        ${a.chat.summary ? `<div class="ai-box">${esc(a.chat.summary)}</div>` : ""}
+        <details style="margin-top:8px"><summary class="hint" style="cursor:pointer">Full conversation</summary><div class="chat" style="min-height:0;margin-top:8px">${a.chat.messages.map(m => `<div class="bubble ${m.role === "bot" ? "bot" : "candidate"}">${esc(m.text)}</div>`).join("")}</div></details>` : ""}
+      <h4>Private notes</h4>
+      <div class="f"><textarea id="dNote" rows="3" style="min-height:70px" placeholder="Only your team sees notes."></textarea></div>
+      <div class="actions" style="margin-top:8px"><button class="btn btn-ghost btn-sm" id="dNoteSave" type="button">Add note</button></div>
+      <h4>History</h4>
+      <ul class="history">${a.history.map(h => `<li class="${h.kind === "note" ? "note" : ""}">${esc(h.kind === "note" ? h.note : h.kind === "applied" ? "Applied" : h.kind === "viewed" ? "Opened by your team" : h.kind !== "stage" ? (h.note || "Updated") : `Moved from ${O.stage_labels[h.from] || h.from} to ${O.stage_labels[h.to] || h.to}${h.note ? `: "${h.note}"` : ""}`)}<small>${S.date(h.at)}</small></li>`).join("")}</ul>`;
+    $("dClose").onclick = close; $("dClose").focus();
+    root.querySelector("[data-msg]").onclick = e => { e.preventDefault(); close(); show("messages-" + a.id, true); };
+    async function drawIv() {
+      const list = await S.api(`/interviews/for-application/${a.id}`);
+      const active = list.find(i => ["proposed", "confirmed", "declined"].includes(i.status));
+      $("dIvNew").hidden = !!active || ["withdrawn", "rejected", "hired"].includes(a.stage);
+      $("dIv").innerHTML = active ? `<div class="rows" style="margin-top:10px">${S.interviewCard(active, "employer")}</div>` : "";
+    }
+    drawIv().catch(() => {});
+    $("dIvNew").onclick = () => {
+      $("dIvNew").hidden = true;
+      $("dIv").innerHTML = `<form class="panel" id="ivForm" style="margin-top:10px">
+        <h4 style="margin-top:0">Offer up to 3 times (Philippine time)</h4>
+        <div class="grid2">${S.slotInputs("ivSlot")}
+          <label class="f"><span>Type</span><select class="input" id="ivMode"><option value="video">Video call</option><option value="phone">Phone call</option><option value="onsite">In person</option></select></label>
+          <label class="f"><span>Length</span><select class="input" id="ivLen"><option>15</option><option selected>30</option><option>45</option><option>60</option><option>90</option></select></label>
+        </div>
+        <label class="f" style="margin-top:10px"><span>Meeting link, phone note or address</span><input class="input" id="ivLoc" maxlength="500" placeholder="https://meet.google.com/… or 5F Ayala Tower, Cebu IT Park"></label>
+        <label class="f" style="margin-top:10px"><span>Notes for the applicant (optional)</span><textarea class="input" id="ivNotes" rows="2" maxlength="2000" placeholder="e.g. Bring a valid ID. Expect a 10-minute typing test."></textarea></label>
+        <div class="actions" style="margin-top:10px"><button class="btn btn-red btn-sm">Send invitation</button><button class="btn btn-ghost btn-sm" type="button" id="ivCancelForm">Cancel</button></div>
+        <p class="err" id="ivErr" hidden></p></form>`;
+      $("ivCancelForm").onclick = () => drawIv();
+      $("ivForm").addEventListener("submit", async e => {
+        e.preventDefault(); $("ivErr").hidden = true;
+        try {
+          await S.api(`/employer/applications/${a.id}/interviews`, { method: "POST", body: { slots: S.readSlots("ivSlot"), mode: $("ivMode").value,
+            duration_minutes: +$("ivLen").value, location: $("ivLoc").value, notes: $("ivNotes").value } });
+          S.toast("Invitation sent. The applicant picks a time."); openApplicant(a.id); loadPipeline(pipeJobId);
+        } catch (err) { $("ivErr").textContent = err.message; $("ivErr").hidden = false; }
+      });
+    };
+    $("dIv").addEventListener("click", e => ivAction(e, () => openApplicant(a.id)));
+    const notifyStages = ["shortlisted", "interview", "offer", "hired", "rejected"];
+    const syncMsg = () => { $("dMsgWrap").hidden = !notifyStages.includes($("dStage").value) || $("dStage").value === a.stage; };
+    $("dStage").onchange = syncMsg; syncMsg();
+    $("dMove").onclick = async () => { if ($("dStage").value === a.stage) return; const c = await moveStage(a.id, $("dStage").value, $("dMsg").value); if (c) openApplicant(a.id); };
+    const tags = S.tagInput($("dTags"), card ? card.tags : [], "e.g. Strong English");
+    if ($("dAi")) $("dAi").onclick = async () => {
+      $("dAi").disabled = true; $("aiBox").innerHTML = `<p class="hint">Reading the application…</p>`;
+      try { const r = await S.api(`/employer/applications/${a.id}/ai-summary${a.ai_summary ? "?refresh=true" : ""}`, { method: "POST" }); $("aiBox").innerHTML = `<div class="ai-box">${esc(r.summary)}</div>`; a.ai_summary = r.summary; }
+      catch (err) { $("aiBox").innerHTML = `<p class="err">${esc(err.message)}</p>`; }
+      finally { $("dAi").disabled = false; }
+    };
+    if ($("dSendTest")) $("dSendTest").onclick = async () => {
+      try { S.toast((await S.api(`/employer/applications/${a.id}/assessment`, { method: "POST", body: { assessment_id: +$("dTest").value } })).message); openApplicant(a.id); loadPipeline(pipeJobId); }
+      catch (err) { S.toast(err.message); }
+    };
+    $("dTagSave").onclick = async () => {
+      try { const c = await S.api(`/employer/applications/${a.id}`, { method: "PATCH", body: { tags: tags.get() } }); Object.assign(card, c); drawKanban(); S.toast("Tags saved"); }
+      catch (err) { S.toast(err.message); }
+    };
+    $("dNoteSave").onclick = async () => {
+      if (!$("dNote").value.trim()) return;
+      try { await S.api(`/employer/applications/${a.id}/notes`, { method: "POST", body: { text: $("dNote").value } }); S.toast("Note added"); openApplicant(a.id); }
+      catch (err) { S.toast(err.message); }
+    };
+    document.addEventListener("keydown", function esc_(e) { if (e.key === "Escape") { close(); document.removeEventListener("keydown", esc_); } });
+  }
+
+
+  // ---------------- Company page (branding)
+  let brand = null;
+  const LINKS = [["facebook", "Facebook"], ["linkedin", "LinkedIn"], ["instagram", "Instagram"], ["tiktok", "TikTok"], ["youtube", "YouTube"]];
+  function listRow(kind, v = {}) {
+    const div = document.createElement("div"); div.className = "row";
+    div.innerHTML = kind === "val"
+      ? `<input class="input vTitle" maxlength="80" placeholder="Value, e.g. Malasakit" value="${esc(v.title || "")}"><input class="input vText" maxlength="400" placeholder="What it means in practice" value="${esc(v.text || "")}"><button class="btn btn-ghost btn-sm" type="button">Remove</button>`
+      : `<div style="display:grid;gap:8px"><input class="input tName" maxlength="100" placeholder="Name" value="${esc(v.name || "")}"><input class="input tRole" maxlength="100" placeholder="Role" value="${esc(v.role || "")}"></div><textarea class="input tQuote" maxlength="600" rows="3" placeholder="What they say about working here">${esc(v.quote || "")}</textarea><button class="btn btn-ghost btn-sm" type="button">Remove</button>`;
+    div.querySelector("button").onclick = () => div.remove();
+    $(kind === "val" ? "valList" : "tstList").appendChild(div);
+  }
+  $("valAdd").onclick = () => { if ($("valList").children.length < 8) listRow("val"); };
+  $("tstAdd").onclick = () => { if ($("tstList").children.length < 8) listRow("tst"); };
+  function drawImages() {
+    const thumb = (url, label) => `<div class="thumb"><img src="${esc(url)}" alt="${label}"><button class="btn btn-ghost btn-sm" type="button" data-rm="${esc(url)}" aria-label="Remove ${label}">×</button></div>`;
+    $("logoThumb").innerHTML = brand.logo_url ? thumb(brand.logo_url, "logo") : "";
+    $("coverThumb").innerHTML = brand.cover_url ? thumb(brand.cover_url, "cover") : "";
+    $("photoThumbs").innerHTML = brand.photos.map(u => thumb(u, "photo")).join("");
+  }
+  async function loadBranding() {
+    if (!company) { $("brandForm").hidden = true; return; }
+    $("brandForm").hidden = false;
+    brand = await S.api("/employer/branding");
+    $("pageLink").href = `/company.html?c=${encodeURIComponent(brand.slug)}`;
+    $("pageLink").textContent = company.approval === "approved" ? "View your page" : "Your page goes public once you're verified";
+    $("bTag").value = brand.tagline; $("bFounded").value = brand.founded || ""; $("bVideo").value = brand.video_url;
+    $("bSize").innerHTML = `<option value="">Choose…</option>` + brand.sizes.map(x => `<option>${esc(x)}</option>`).join(""); $("bSize").value = brand.size || "";
+    $("valList").innerHTML = ""; brand.culture_values.forEach(v => listRow("val", v));
+    $("tstList").innerHTML = ""; brand.testimonials.forEach(v => listRow("tst", v));
+    $("linkFields").innerHTML = LINKS.map(([k, n]) => `<label class="f"><span>${n}</span><input class="input" data-link="${k}" maxlength="300" placeholder="https://…" value="${esc(brand.links[k] || "")}"></label>`).join("");
+    drawImages();
+  }
+  $("brandForm").addEventListener("submit", async e => {
+    e.preventDefault(); $("bErr").hidden = true;
+    const body = { tagline: $("bTag").value, size: $("bSize").value || null, founded: $("bFounded").value ? +$("bFounded").value : null,
+      video_url: $("bVideo").value,
+      culture_values: [...$("valList").children].map(r => ({ title: r.querySelector(".vTitle").value.trim(), text: r.querySelector(".vText").value.trim() })).filter(v => v.title),
+      testimonials: [...$("tstList").children].map(r => ({ name: r.querySelector(".tName").value.trim(), role: r.querySelector(".tRole").value.trim(), quote: r.querySelector(".tQuote").value.trim() })).filter(t => t.name && t.quote),
+      links: Object.fromEntries([...document.querySelectorAll("[data-link]")].map(i => [i.dataset.link, i.value.trim()]).filter(([, v]) => v)) };
+    try { brand = await S.api("/employer/branding", { method: "PUT", body }); S.toast("Company page saved"); }
+    catch (err) { $("bErr").textContent = err.message; $("bErr").hidden = false; }
+  });
+  for (const [id, kind] of [["upLogo", "logo"], ["upCover", "cover"], ["upPhoto", "photo"]]) {
+    $(id).onchange = async e => {
+      const f = e.target.files[0]; if (!f) return;
+      const fd = new FormData(); fd.append("file", f); fd.append("kind", kind);
+      try { brand = await S.api("/employer/branding/images", { method: "POST", body: fd }); drawImages(); S.toast("Image uploaded"); }
+      catch (err) { S.toast(err.message); }
+      e.target.value = "";
+    };
+  }
+  $("pCompany").addEventListener("click", async e => {
+    const b = e.target.closest("[data-rm]"); if (!b) return;
+    try { brand = await S.api("/employer/branding/images/remove", { method: "POST", body: { url: b.dataset.rm } }); drawImages(); } catch (err) { S.toast(err.message); }
+  });
+
+  // ---------------- Find candidates
+  let cdPage = 1, cdList = [];
+  const cdSkills = { box: S.tagInput($("cdSkills"), [], "Add a skill") };
+  $("cdLoc").insertAdjacentHTML("beforeend", O.locations.map(l => `<option>${esc(l)}</option>`).join(""));
+  async function searchCands(append) {
+    const p = new URLSearchParams();
+    if ($("cdQ").value.trim()) p.set("q", $("cdQ").value.trim());
+    cdSkills.box.get().forEach(x => p.append("skills", x));
+    if ($("cdLoc").value) p.set("location", $("cdLoc").value);
+    if ($("cdYears").value) p.set("min_years", $("cdYears").value);
+    if ($("cdPay").value) p.set("max_salary", $("cdPay").value);
+    p.set("page", cdPage);
+    let r;
+    try { r = await S.api("/employer/candidates?" + p.toString()); $("candLocked").innerHTML = ""; $("candForm").hidden = false; }
+    catch (err) {
+      if (err.status === 403) { $("candLocked").innerHTML = `<div class="notice warn">${esc(err.message)}</div>`; $("candForm").hidden = true; $("cands").innerHTML = ""; $("cdCount").textContent = ""; return; }
+      S.toast(err.message); return;
+    }
+    cdList = append ? cdList.concat(r.candidates) : r.candidates;
+    $("cdCount").textContent = `${r.total} candidate${r.total === 1 ? "" : "s"}`;
+    $("cands").innerHTML = cdList.length ? cdList.map(c => `
+      <div class="cand"><div class="logo" style="background:${S.colorFor(c.name)};width:48px;height:48px;border-radius:50%">${esc(S.initials(c.name))}</div>
+        <div style="min-width:0"><h3 style="font-family:var(--f-body);font-size:17px">${esc(c.name)}${c.highlighted ? ` <span class="pill hl" title="A paid option job seekers can choose">Highlighted</span>` : ""}</h3><div class="co" style="color:var(--muted);font-weight:600">${esc(c.headline)}</div>
+          <div class="meta"><span>${esc(c.location || "Location not given")}</span>${c.years_experience != null ? `<span>${c.years_experience} yr${c.years_experience === 1 ? "" : "s"} experience</span>` : ""}${c.desired_salary ? `<span>Expects ${peso(c.desired_salary)}</span>` : ""}<span>Updated ${S.ago(c.updated_at)}</span></div>
+          <div style="display:flex;flex-wrap:wrap;gap:6px;margin-top:8px">${c.skills.slice(0, 8).map(x => `<span class="pill">${esc(x)}</span>`).join("")}</div></div>
+        <div class="side"><button class="btn btn-blue btn-sm" data-cand="${c.id}">View profile</button></div></div>`).join("")
+      : `<div class="empty-sm">No candidates match. Try fewer filters or other keywords.</div>`;
+    $("cdMore").hidden = cdList.length >= r.total;
+  }
+  $("candForm").addEventListener("submit", e => { e.preventDefault(); cdPage = 1; searchCands(false); });
+  $("cdMore").onclick = () => { cdPage++; searchCands(true); };
+  $("cands").addEventListener("click", e => { const b = e.target.closest("[data-cand]"); if (b) openCandidate(+b.dataset.cand); });
+  async function openCandidate(id) {
+    const root = $("drawerRoot");
+    root.innerHTML = `<div class="drawer-scrim" id="dScrim"></div><aside class="drawer" role="dialog" aria-modal="true" aria-label="Candidate"><p>Loading…</p></aside>`;
+    const close = () => { root.innerHTML = ""; }; $("dScrim").onclick = close;
+    let c;
+    try { c = await S.api(`/employer/candidates/${id}`); } catch (err) { root.querySelector(".drawer").innerHTML = `<p class="err">${esc(err.message)}</p>`; return; }
+    if (!jobs.length) await loadJobs();
+    const live = jobs.filter(j => j.state === "Live");
+    root.querySelector(".drawer").innerHTML = `
+      <div style="display:flex;justify-content:space-between;gap:12px;align-items:start"><div><h2>${esc(c.name)}</h2><p style="margin:4px 0 0;color:var(--muted);font-weight:600">${esc(c.headline)}</p></div><button class="x" type="button" id="dClose" aria-label="Close">×</button></div>
+      <div class="facts" style="margin-top:16px">
+        <div><small>Location</small><b>${esc(c.location || "Not given")}</b></div>
+        <div><small>Experience</small><b>${c.years_experience != null ? c.years_experience + (c.years_experience === 1 ? " yr" : " yrs") : "Not given"}</b></div>
+        <div><small>Expected pay</small><b>${c.desired_salary ? peso(c.desired_salary) : "Not given"}</b></div>
+      </div>
+      ${c.desired_setups.length || c.desired_job_types.length ? `<p class="hint" style="margin:10px 0 0">Looking for: ${esc([...c.desired_setups, ...c.desired_job_types].join(", "))}</p>` : ""}
+      <h4>Skills</h4><div style="display:flex;flex-wrap:wrap;gap:6px">${c.skills.map(x => `<span class="pill">${esc(x)}</span>`).join("") || '<span class="hint">None listed</span>'}</div>
+      ${c.summary ? `<h4>Summary</h4><p class="prose" style="white-space:pre-wrap;margin:0">${esc(c.summary)}</p>` : ""}
+      <h4>Resume</h4>${c.resume ? `<a class="doc" href="/api/employer/candidates/${c.id}/resume" target="_blank" rel="noopener"><span class="ico">${esc(c.resume.filename.split(".").pop().toUpperCase())}</span><span class="nm"><b>${esc(c.resume.filename)}</b><small>${S.size(c.resume.size)}</small></span></a>` : '<p class="hint">No resume uploaded.</p>'}
+      ${c.invites.length ? `<h4>Already invited</h4><ul class="history">${c.invites.map(i => `<li>${esc(i.job)} · ${esc(i.status)}<small>${S.day(i.at)}</small></li>`).join("")}</ul>` : ""}
+      <h4>Invite to apply</h4>
+      ${live.length ? `<div class="f"><span>Job</span><select id="ivJob" class="input">${live.map(j => `<option value="${j.id}"${c.applied_job_ids.includes(j.id) ? " disabled" : ""}>${esc(j.title)}${c.applied_job_ids.includes(j.id) ? " (already applied)" : ""}</option>`).join("")}</select></div>
+        <label class="f" style="margin-top:10px"><span>Message (optional)</span><textarea id="ivMsg" rows="3" maxlength="1000" style="min-height:80px" placeholder="Why you think they'd be a good fit."></textarea></label>
+        <div class="actions"><button class="btn btn-red" id="ivSend" type="button">Send invite</button></div>
+        <p class="hint">They get an email and a notification. Their email and phone stay hidden until they apply.</p>` : '<p class="hint">Publish a job first to invite candidates.</p>'}`;
+    $("dClose").onclick = close; $("dClose").focus();
+    if ($("ivSend")) $("ivSend").onclick = async () => {
+      try { S.toast((await S.api(`/employer/candidates/${c.id}/invite`, { method: "POST", body: { job_id: +$("ivJob").value, message: $("ivMsg").value } })).message); openCandidate(c.id); }
+      catch (err) { S.toast(err.message); }
+    };
+  }
+
+  // ---------------- Skills tests
+  let editingTest = null;
+  async function loadTests() {
+    const list = await S.api("/employer/assessments");
+    testOpts = list;
+    $("testList").innerHTML = list.length ? list.map(t => `
+      <div class="rowcard"><div style="min-width:0"><h3>${esc(t.title)}</h3>
+        <div class="meta"><span>${t.question_count} questions</span><span>${t.time_limit_minutes} min</span><span>Pass ${t.pass_score}%</span><span>Taken ${t.taken} time${t.taken === 1 ? "" : "s"}</span></div>
+        ${t.jobs.length ? `<p class="hint" style="margin:6px 0 0">Used in: ${esc(t.jobs.map(j => j.title).join(", "))}</p>` : ""}</div>
+        <div class="side"><div style="display:flex;gap:6px"><button class="btn btn-ghost btn-sm" data-tedit="${t.id}">Edit</button><button class="btn btn-ghost btn-sm" data-tdel="${t.id}">Delete</button></div></div></div>`).join("")
+      : `<div class="empty-sm">No tests yet. A short 5 to 10 question test helps you spot strong applicants fast.</div>`;
+  }
+  function tqItem(q = { text: "", options: ["", ""], answer: 0 }) {
+    const div = document.createElement("div"); div.className = "qitem";
+    div.innerHTML = `<label class="f"><span>Question</span><input class="tqText" maxlength="1000" value="${esc(q.text)}"></label>
+      <label class="f"><span>Choices, one per line (2 to 6)</span><textarea class="tqOpts" rows="4" style="min-height:90px">${esc(q.options.join("\n"))}</textarea></label>
+      <div style="display:flex;flex-wrap:wrap;gap:10px;align-items:center"><label class="f" style="flex-direction:row;align-items:center;gap:8px"><span style="font-size:14px">Correct choice</span><select class="tqAns input" style="width:auto"></select></label>
+      <button class="btn btn-ghost btn-sm" type="button">Remove question</button></div>`;
+    const sync = () => {
+      const opts = div.querySelector(".tqOpts").value.split("\n").map(x => x.trim()).filter(Boolean);
+      const sel = div.querySelector(".tqAns"), cur = sel.value !== "" ? +sel.value : q.answer;
+      sel.innerHTML = opts.map((o, i) => `<option value="${i}"${i === cur ? " selected" : ""}>${esc(o.slice(0, 60))}</option>`).join("");
+    };
+    div.querySelector(".tqOpts").oninput = sync; sync();
+    div.querySelector("button").onclick = () => div.remove();
+    $("tqList").appendChild(div);
+  }
+  function openTestForm(t) {
+    editingTest = t || null;
+    $("testForm").hidden = false; $("testFormTitle").textContent = t ? `Edit: ${t.title}` : "New skills test";
+    $("tTitle").value = t ? t.title : ""; $("tInstr").value = t ? t.instructions : ""; $("tTime").value = t ? t.time_limit_minutes : 15; $("tPass").value = t ? t.pass_score : 60;
+    $("tqList").innerHTML = ""; (t ? t.questions : [undefined, undefined, undefined]).forEach(q => tqItem(q)); $("tErr").hidden = true;
+    $("testForm").scrollIntoView({ behavior: "smooth" });
+  }
+  $("newTest").onclick = () => openTestForm(null);
+  $("tqAdd").onclick = () => tqItem();
+  $("tCancel").onclick = () => { $("testForm").hidden = true; };
+  $("testList").addEventListener("click", async e => {
+    const b = e.target.closest("button"); if (!b) return;
+    if (b.dataset.tedit) return openTestForm(testOpts.find(t => t.id === +b.dataset.tedit));
+    if (b.dataset.tdel) {
+      if (b.dataset.confirm !== "1") { b.dataset.confirm = "1"; b.textContent = "Confirm delete"; return; }
+      try { await S.api(`/employer/assessments/${b.dataset.tdel}`, { method: "DELETE" }); S.toast("Test deleted"); loadTests(); } catch (err) { S.toast(err.message); }
+    }
+  });
+  $("testForm").addEventListener("submit", async e => {
+    e.preventDefault(); $("tErr").hidden = true;
+    const questions = [...$("tqList").children].map(d => ({ text: d.querySelector(".tqText").value.trim(),
+      options: d.querySelector(".tqOpts").value.split("\n").map(x => x.trim()).filter(Boolean), answer: +(d.querySelector(".tqAns").value || 0) })).filter(q => q.text);
+    const body = { title: $("tTitle").value, instructions: $("tInstr").value, time_limit_minutes: +$("tTime").value || 15, pass_score: +$("tPass").value || 0, questions };
+    try {
+      await S.api(editingTest ? `/employer/assessments/${editingTest.id}` : "/employer/assessments", { method: editingTest ? "PUT" : "POST", body });
+      S.toast("Test saved"); $("testForm").hidden = true; loadTests();
+    } catch (err) { $("tErr").textContent = err.message; $("tErr").hidden = false; }
+  });
+
+  // ---------------- Team
+  async function loadTeam() {
+    const t = await S.api("/employer/team");
+    const owner = t.my_role === "owner";
+    $("inviteForm").hidden = !owner;
+    $("members").innerHTML = t.members.map(m => `
+      <div class="rowcard"><div style="min-width:0"><h3>${esc(m.name)}${m.you ? " (you)" : ""}</h3><div class="meta"><span>${esc(m.email)}</span></div></div>
+        <div class="side">${S.statusPill(m.role === "owner" ? "Owner" : "Recruiter")}
+        ${owner && !m.you ? `<div style="display:flex;gap:6px"><button class="btn btn-ghost btn-sm" data-owner="${m.id}">Make owner</button><button class="btn btn-ghost btn-sm" data-remove="${m.id}">Remove</button></div>` : ""}</div></div>`).join("");
+  }
+  $("members").addEventListener("click", async e => {
+    const b = e.target.closest("button"); if (!b) return;
+    if (b.dataset.confirm !== "1") { b.dataset.confirm = "1"; b.textContent = "Confirm"; return; }
+    try {
+      if (b.dataset.remove) await S.api(`/employer/team/${b.dataset.remove}`, { method: "DELETE" });
+      else await S.api(`/employer/team/${b.dataset.owner}/make-owner`, { method: "POST" });
+      loadTeam();
+    } catch (err) { S.toast(err.message); }
+  });
+  $("inviteForm").addEventListener("submit", async e => {
+    e.preventDefault();
+    try { S.toast((await S.api("/employer/team/invite", { method: "POST", body: { email: $("invEmail").value } })).message); e.target.reset(); }
+    catch (err) { S.toast(err.message); }
+  });
+
+  // ---------------- Interviews
+  async function ivAction(e, after) {
+    const b = e.target.closest("button"); if (!b) return;
+    try {
+      if (b.dataset.cancel) {
+        if (b.dataset.confirm !== "1") {
+          b.dataset.confirm = "1"; b.textContent = "Confirm cancel";
+          b.insertAdjacentHTML("beforebegin", `<input class="input" data-reason maxlength="500" placeholder="Reason (sent to the applicant)">`);
+          return;
+        }
+        const reason = (b.parentElement.querySelector("[data-reason]") || {}).value || "";
+        await S.api(`/interviews/${b.dataset.cancel}/cancel`, { method: "POST", body: { reason } });
+        S.toast("Interview cancelled. The applicant was told.");
+      } else if (b.dataset.resched) {
+        const card = b.closest("[data-iv]");
+        if (!card.querySelector(".resched")) {
+          card.insertAdjacentHTML("beforeend", `<form class="resched panel" style="width:100%;margin-top:10px"><div class="grid2">${S.slotInputs("rs" + b.dataset.resched + "_")}</div>
+            <label class="f" style="margin-top:10px"><span>Note (optional)</span><input class="input" maxlength="500" data-note></label>
+            <div class="actions" style="margin-top:10px"><button class="btn btn-red btn-sm" data-rsend="${b.dataset.resched}">Send new times</button></div></form>`);
+          return;
+        }
+        return;
+      } else if (b.dataset.rsend) {
+        e.preventDefault();
+        const f = b.closest("form");
+        await S.api(`/employer/interviews/${b.dataset.rsend}/reschedule`, { method: "POST", body: { slots: S.readSlots("rs" + b.dataset.rsend + "_"), note: f.querySelector("[data-note]").value } });
+        S.toast("New times sent. The applicant picks one.");
+      } else return;
+      after();
+    } catch (err) { S.toast(err.message); }
+  }
+  async function loadInterviews() {
+    const list = await S.api("/employer/interviews");
+    const up = list.filter(i => i.status === "confirmed" && new Date(i.starts_at) > new Date());
+    const rest = list.filter(i => !up.includes(i));
+    $("ivs").innerHTML = list.length ? (up.length ? `<h3>Coming up</h3>` + up.map(iv => S.interviewCard(iv, "employer")).join("") : "")
+        + (rest.length ? `<h3>${up.length ? "Other interviews" : "Interviews"}</h3>` + rest.map(iv => S.interviewCard(iv, "employer")).join("") : "")
+      : `<div class="empty-sm">No interviews yet. Open an applicant and choose Schedule interview.</div>`;
+  }
+  $("ivs").addEventListener("click", e => ivAction(e, loadInterviews));
+
+  // ---------------- Featuring a job
+  async function featureJob(jobId, btn) {
+    btn.disabled = true;
+    try {
+      if (bill && bill.featured_boosts_left > 0) {
+        await S.api("/billing/use-boost", { method: "POST", body: { product_code: "featured_7", job_id: jobId } });
+        S.toast("Featured for 7 days. It used one of your plan's boosts."); loadJobs();
+      } else if (S.native()) {
+        S.toast("Buy a featured listing on the Sinag Jobs website."); btn.disabled = false;
+      } else {
+        const r = await S.api("/billing/checkout", { method: "POST", body: { product_code: "featured_7", job_id: jobId } });
+        location.href = r.checkout_url;
+      }
+    } catch (err) { S.toast(err.message); btn.disabled = false; }
+  }
+
+  // ---------------- Bulk import
+  $("impFile").onchange = () => { $("impGo").disabled = true; $("impOut").innerHTML = ""; };
+  $("impForm").addEventListener("submit", async e => {
+    e.preventDefault();
+    const dry = e.submitter ? e.submitter.dataset.dry === "1" : true;
+    if (!$("impFile").files[0]) return;
+    const fd = new FormData(); fd.append("file", $("impFile").files[0]); fd.append("dry_run", dry ? "true" : "false");
+    $("impOut").innerHTML = `<p class="muted">${dry ? "Checking" : "Importing"}…</p>`;
+    try {
+      const r = await S.api("/employer/import", { method: "POST", body: fd });
+      $("impOut").innerHTML = importResult(r);
+      $("impGo").disabled = !dry || !r.valid;
+      if (!dry) { S.toast(`${r.created} added, ${r.updated} updated`); loadJobs(); }
+    } catch (err) {
+      $("impOut").innerHTML = `<div class="notice bad">${esc(err.message)}${err.status === 402 ? ` <a href="#billing" data-goto="billing">See plans</a>` : ""}</div>`;
+    }
+  });
+  function importResult(r) {
+    const head = r.dry_run
+      ? `<b>${r.valid} of ${r.rows} rows are ready to import.</b> Nothing has been saved yet.`
+      : `<b>Done:</b> ${r.created} added, ${r.updated} updated${r.closed ? `, ${r.closed} closed` : ""}.`;
+    return `<div class="notice${r.errors.length ? " warn" : ""}">${head}</div>` + (r.errors.length ? `
+      <div class="table-wrap" style="margin-top:10px;max-height:260px;overflow:auto"><table><thead><tr><th class="n">Row</th><th>Title</th><th>Problem</th></tr></thead>
+      <tbody>${r.errors.map(x => `<tr><td class="n">${x.row}</td><td>${esc(x.title)}</td><td>${esc(x.error)}</td></tr>`).join("")}</tbody></table></div>` : "");
+  }
+
+  // ---------------- Billing (test payments only)
+  S.testBanner($("billNotice"));
+  const kindLabel = { job_credit: "Job posts", featured: "Featured listing", subscription: "Monthly plans" };
+  async function loadBilling() {
+    const b = await loadBill();
+    if (!b) { $("billBody").innerHTML = `<div class="notice">Billing isn't available.</div>`; return; }
+    if (!b.billing_enabled) { $("billBody").innerHTML = `<div class="notice">Billing is turned off on this site. Posting is free.</div>`; return; }
+    const sub = b.subscription;
+    const groups = ["subscription", "job_credit", "featured"].map(k => ({ k, items: b.products.filter(p => p.kind === k) })).filter(g => g.items.length);
+    const liveJobs = jobs.filter(j => j.state === "Live" && !isFeat(j));
+    $("billBody").innerHTML = `
+      ${b.problem ? `<div class="notice bad" style="margin-bottom:16px">${esc(b.problem)}</div>` : ""}
+      <div class="stats" style="margin-bottom:20px">
+        <div class="stat"><b>${b.plan ? esc(b.plan.name) : "No plan"}</b><span>${sub ? (sub.status === "past_due" ? "Renewal failed. Update the test card." : sub.cancel_at_period_end ? `Ends ${S.day(sub.current_period_end)}` : `Renews ${S.day(sub.current_period_end)}`) : `${b.free_live_jobs} free live job${b.free_live_jobs === 1 ? "" : "s"}`}</span></div>
+        <div class="stat"><b>${b.live_jobs}${b.live_limit != null ? ` / ${b.live_limit}` : ""}</b><span>Live jobs</span></div>
+        <div class="stat"><b>${b.credits}</b><span>Job credits</span></div>
+        <div class="stat"><b>${b.featured_boosts_left}</b><span>Featured boosts left</span></div>
+      </div>
+      ${sub ? `<div class="panel" style="margin-bottom:20px">
+        <h3 style="margin-top:0">Your plan</h3>
+        <p>${esc(b.plan.name)} · ${sub.status === "active" ? "Active" : sub.status === "past_due" ? "Payment failed (test)" : esc(sub.status)}${sub.card ? ` · renews with test ${esc(sub.card)}` : ""}</p>
+        <div style="display:flex;gap:8px;flex-wrap:wrap;align-items:end">
+          ${sub.cancel_at_period_end ? `<button class="btn btn-blue btn-sm" id="subResume">Keep my plan</button>` : `<button class="btn btn-ghost btn-sm" id="subCancel">Cancel plan</button>`}
+          ${b.mode === "sandbox" ? `<label class="f" style="flex-direction:row;align-items:center;gap:8px"><span>Renew with test card</span>
+            <select class="input" id="renewCard" style="width:auto">${b.test_cards.map(c => `<option value="${c.number}">${esc(c.brand)} ${c.number.slice(-4)} (${esc(c.label.toLowerCase())})</option>`).join("")}</select></label>
+            <button class="btn btn-ghost btn-sm" id="renewSave">Save</button>` : ""}
+        </div></div>` : ""}
+      <label class="f" style="max-width:320px;margin-bottom:8px"><span>Discount code (optional)</span><input class="input" id="bdCode" maxlength="40" autocomplete="off" placeholder="Applied when you click Buy"></label>
+      ${groups.map(g => `<h3>${kindLabel[g.k]}</h3><div class="plans" style="margin-bottom:20px">${g.items.map(p => {
+        const current = b.plan && b.plan.code === p.code;
+        return `<div class="plan${current ? " current" : ""}"><b>${esc(p.name)}</b>
+          <div class="price">${S.peso(p.price_php)}${p.kind === "subscription" ? `<small> / ${p.days} days</small>` : ""}</div>
+          <p>${esc(p.description)}</p>
+          ${p.kind === "featured"
+            ? (liveJobs.length ? `<select class="input" data-featjob aria-label="Job to feature">${liveJobs.map(j => `<option value="${j.id}">${esc(j.title)}</option>`).join("")}</select>
+               <button class="btn btn-blue btn-sm" data-buy="${p.code}">Buy (test)</button>` : `<span class="muted" style="font-size:14px">Publish a job first.</span>`)
+            : current ? `<span class="pill">Current plan</span>` : `<button class="btn btn-${p.kind === "subscription" ? "red" : "blue"} btn-sm" data-buy="${p.code}">${b.plan && p.kind === "subscription" ? "Switch (test)" : "Buy (test)"}</button>`}
+        </div>`; }).join("")}</div>`).join("")}
+      <div class="panel" style="margin-bottom:20px">
+        <h3 style="margin-top:0">Invoice details</h3>
+        <p class="hint" style="margin-top:0">Printed on your invoices. Invoices here are test invoices, not BIR-registered invoices or official receipts.</p>
+        <form id="billDet" class="grid2">
+          <label class="f"><span>Registered name</span><input class="input" id="bdName" maxlength="200" value="${esc(b.billing_details.name)}" placeholder="${esc(company.name)}"></label>
+          <label class="f"><span>TIN</span><input class="input" id="bdTin" maxlength="30" value="${esc(b.billing_details.tin)}" placeholder="000-000-000-000" inputmode="numeric"></label>
+          <label class="f" style="grid-column:1/-1"><span>Business address</span><input class="input" id="bdAddr" maxlength="400" value="${esc(b.billing_details.address)}"></label>
+          <div><button class="btn btn-ghost btn-sm">Save invoice details</button></div>
+        </form>
+      </div>
+      <h3>Orders and receipts</h3>
+      ${b.orders.length ? `<div class="table-wrap"><table><thead><tr><th>Order</th><th>Item</th><th class="n">Amount</th><th>Status</th><th>Date</th><th></th></tr></thead><tbody>
+        ${b.orders.map(o => `<tr><td style="font-family:var(--f-mono);font-size:13px">${esc(o.number)}</td><td>${esc(o.product)}${o.is_renewal ? " (renewal)" : ""}</td>
+          <td class="n">${S.peso(o.amount_php)}${o.discount_php ? `<div class="hint" style="font-size:12px">${esc(o.discount_code)} −${S.peso(o.discount_php)}</div>` : ""}</td><td>${S.statusPill({ paid: "Paid", pending: "Pending", failed: "Failed", refunded: "Refunded", cancelled: "Cancelled" }[o.status] || o.status)}</td>
+          <td>${S.day(o.paid_at || o.created_at)}</td>
+          <td>${o.invoice_url ? `<a href="/checkout.html?order=${o.id}">Receipt</a> · <a href="${o.invoice_url}">Invoice</a>` : o.status === "pending" || o.status === "failed" ? `<a href="/checkout.html?order=${o.id}">Pay</a>` : ""}</td></tr>`).join("")}
+        </tbody></table></div><p class="muted" style="font-size:13px">All orders are test orders. No real charges were made.</p>` : `<p class="muted">No orders yet.</p>`}`;
+    if (S.native()) {     // app stores have their own billing rules: purchases happen on the website
+      $("billBody").querySelectorAll("[data-buy]").forEach(b => { const h = document.createElement("span"); h.className = "hint"; h.textContent = "Buy on the Sinag Jobs website"; b.replaceWith(h); });
+      const c = $("bdCode"); if (c) c.closest("label").hidden = true;
+    }
+    $("billBody").querySelectorAll("[data-buy]").forEach(btn => btn.onclick = async () => {
+      btn.disabled = true;
+      const sel = btn.parentElement.querySelector("[data-featjob]");
+      try {
+        const r = await S.api("/billing/checkout", { method: "POST", body: { product_code: btn.dataset.buy, job_id: sel ? +sel.value : null,
+          discount_code: ($("bdCode") && $("bdCode").value.trim()) || null } });
+        location.href = r.checkout_url;
+      } catch (err) { S.toast(err.message); btn.disabled = false; }
+    });
+    $("billDet").addEventListener("submit", async e => {
+      e.preventDefault();
+      try { S.toast((await S.api("/billing/details", { method: "PUT", body: { name: $("bdName").value, address: $("bdAddr").value, tin: $("bdTin").value } })).message); }
+      catch (err) { S.toast(err.message); }
+    });
+    const act = async (path, body) => { try { S.toast((await S.api(path, { method: "POST", body })).message); loadBilling(); } catch (err) { S.toast(err.message); } };
+    if ($("subCancel")) $("subCancel").onclick = e => {
+      if (e.target.dataset.confirm !== "1") { e.target.dataset.confirm = "1"; e.target.textContent = "Confirm cancel"; return; }
+      act("/billing/subscription/cancel");
+    };
+    if ($("subResume")) $("subResume").onclick = () => act("/billing/subscription/resume");
+    if ($("renewSave")) $("renewSave").onclick = () => act("/billing/subscription/card", { card_number: $("renewCard").value });
+  }
+
+  // ---------------- Analytics
+  const cssVar = n => getComputedStyle(document.documentElement).getPropertyValue(n).trim();
+  async function loadStats() {
+    const d = await S.api(`/employer/analytics?days=${$("stDays").value}`);
+    const conv = d.totals.views ? Math.round(1000 * d.totals.applications / d.totals.views) / 10 : 0;
+    $("stTiles").innerHTML = `
+      <div class="stat"><b>${d.totals.views.toLocaleString(S.locale())}</b><span>Job views</span></div>
+      <div class="stat"><b>${d.totals.applications.toLocaleString(S.locale())}</b><span>Applications</span></div>
+      <div class="stat"><b>${conv}%</b><span>Views that became applications</span></div>
+      <div class="stat"><b>${d.hours_to_first_view != null ? d.hours_to_first_view + " h" : "—"}</b><span>Typical time to first view</span></div>`;
+    S.lineChart($("chViews"), { title: "Job views per day", days: d.days, series: [{ name: "Views", values: d.series.job_view, color: cssVar("--chart-1") }] });
+    S.lineChart($("chApps"), { title: "Applications per day", sub: "Easy Apply plus clicks to your own apply page", days: d.days, series: [{ name: "Applications", values: d.series.application, color: cssVar("--chart-1") }] });
+    $("stJobs").innerHTML = d.jobs.length ? `<table><thead><tr><th>Job</th><th class="n">Views</th><th class="n">Applications</th><th class="n">Conversion</th><th class="n">Avg match</th></tr></thead><tbody>
+      ${d.jobs.map(j => `<tr><td>${esc(j.title)}${j.status !== "open" ? ` <span class="muted">(${esc(j.status)})</span>` : ""}</td><td class="n">${j.views}</td><td class="n">${j.applications}</td><td class="n">${j.conversion ?? "—"}${j.conversion != null ? "%" : ""}</td><td class="n">${j.avg_score ?? "—"}</td></tr>`).join("")}
+      </tbody></table>` : `<div class="empty-sm">Publish a job to see its numbers here.</div>`;
+  }
+  $("stDays").onchange = () => loadStats().catch(err => S.toast(err.message));
+
+  // ---------------- Routing
+  let pushDrawn = false;
+  const tabsEl = document.querySelector("[role=tablist]");
+  const baseShow = S.tabs(tabsEl, () => {});
+  async function show(route, push) {
+    if (!company && !["company", "notifications"].includes(route)) route = "company";
+    const [name, arg] = route.split("-");
+    const tab = name === "edit" ? "new" : name;
+    $("drawerRoot").innerHTML = "";       // a side panel from another tab shouldn't stay open
+    baseShow(tab, false);
+    if (push) history.replaceState(null, "", "#" + route);
+    try {
+      if (tab === "jobs") await loadJobs();
+      else if (tab === "new") {
+        if (name === "edit" && arg) await openEditor(await S.api(`/employer/jobs/${arg}`)); else if (name === "new") await openEditor(null);
+      } else if (tab === "pipeline") await loadPipeline(arg ? +arg : null);
+      else if (tab === "company") { loadCompanyForm(); await loadBranding(); }
+      else if (tab === "candidates") { if (!cdList.length) await searchCands(false); }
+      else if (tab === "tests") await loadTests();
+      else if (tab === "team") await loadTeam();
+      else if (tab === "messages") { await S.inbox($("inbox"), name === "messages" && arg ? +arg : null); S.unreadMessages($("cMsgs")); }
+      else if (tab === "interviews") await loadInterviews();
+      else if (tab === "billing") { if (!jobs.length) jobs = await S.api("/employer/jobs"); await loadBilling(); }
+      else if (tab === "analytics") await loadStats();
+      else if (tab === "notifications") { if (!pushDrawn) { pushDrawn = true; S.pushControl($("pushCtl")); } await S.notificationsPanel($("notifs")); }
+    } catch (err) { S.toast(err.message); }
+  }
+  tabsEl.querySelectorAll("[role=tab]").forEach(b => b.addEventListener("click", () => show(b.dataset.tab, true)));
+  document.addEventListener("click", e => { const g = e.target.closest("[data-goto]"); if (g) show(g.dataset.goto, true); });
+  window.addEventListener("hashchange", () => show(location.hash.slice(1) || "jobs"));
+  if (company) { loadJobs().catch(() => {}); loadTestOptions(); S.unreadMessages($("cMsgs")); }
+  show(location.hash.slice(1) || "jobs");
+})();
+</script>
+</body>
+</html>

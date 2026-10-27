@@ -1,0 +1,77 @@
+{
+ "jobs": [
+  {
+   "id": 4011,
+   "title": "Senior React Developer",
+   "absolute_url": "https://boards.greenhouse.io/kalesalabs/jobs/4011",
+   "location": {
+    "name": "Makati City, Philippines"
+   },
+   "departments": [
+    {
+     "name": "Engineering"
+    }
+   ],
+   "offices": [
+    {
+     "name": "Manila",
+     "location": "Makati City, Metro Manila, Philippines"
+    }
+   ],
+   "first_published": "{{ago:7}}",
+   "updated_at": "{{ago:7}}",
+   "content": "&lt;p&gt;Kalesa Labs builds checkout tools for Philippine merchants. We&#x27;re hiring a Senior React Developer for our hybrid set-up in Makati (3 days in office).&lt;/p&gt;&lt;h3&gt;What you&#x27;ll need&lt;/h3&gt;&lt;ul&gt;&lt;li&gt;5+ years of experience building React apps&lt;/li&gt;&lt;li&gt;TypeScript and testing habits&lt;/li&gt;&lt;/ul&gt;&lt;h3&gt;Benefits&lt;/h3&gt;&lt;ul&gt;&lt;li&gt;HMO from day 1 with 2 free dependents&lt;/li&gt;&lt;li&gt;13th month pay and performance bonus&lt;/li&gt;&lt;li&gt;Stock options&lt;/li&gt;&lt;/ul&gt;&lt;p&gt;Salary: PHP 120,000 - 160,000 per month.&lt;/p&gt;"
+  },
+  {
+   "id": 4012,
+   "title": "Customer Experience Specialist",
+   "absolute_url": "https://boards.greenhouse.io/kalesalabs/jobs/4012",
+   "location": {
+    "name": "Remote - Philippines"
+   },
+   "departments": [
+    {
+     "name": "Support"
+    }
+   ],
+   "offices": [],
+   "first_published": "{{ago:3}}",
+   "updated_at": "{{ago:3}}",
+   "content": "&lt;p&gt;Help merchants across the US get paid. This is a permanent work from home role on night shift (US hours).&lt;/p&gt;&lt;ul&gt;&lt;li&gt;Fresh graduates welcome&lt;/li&gt;&lt;li&gt;HMO on day one, 13th month, night differential&lt;/li&gt;&lt;li&gt;Laptop provided and internet allowance&lt;/li&gt;&lt;/ul&gt;&lt;p&gt;Compensation: \u20b128,000\u2013\u20b135,000 monthly.&lt;/p&gt;"
+  },
+  {
+   "id": 4013,
+   "title": "Staff Platform Engineer",
+   "absolute_url": "https://boards.greenhouse.io/kalesalabs/jobs/4013",
+   "location": {
+    "name": "San Francisco, CA"
+   },
+   "departments": [
+    {
+     "name": "Engineering"
+    }
+   ],
+   "offices": [],
+   "first_published": "{{ago:20}}",
+   "updated_at": "{{ago:20}}",
+   "content": "&lt;p&gt;On-site in San Francisco.&lt;/p&gt;"
+  },
+  {
+   "id": 4014,
+   "title": "Data Analyst",
+   "absolute_url": "https://boards.greenhouse.io/kalesalabs/jobs/4014",
+   "location": {
+    "name": "Remote (APAC)"
+   },
+   "departments": [
+    {
+     "name": "Data"
+    }
+   ],
+   "offices": [],
+   "first_published": "{{ago:52}}",
+   "updated_at": "{{ago:52}}",
+   "content": "&lt;p&gt;Remote role for analysts in Asia-Pacific time zones. 3 years of experience with SQL. Paid time off and learning budget.&lt;/p&gt;"
+  }
+ ]
+}

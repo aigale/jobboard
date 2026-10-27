@@ -1,0 +1,112 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Skills test · Sinag Jobs</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,600;12..96,800&family=Figtree:wght@400;500;600;700&family=IBM+Plex+Mono:wght@500&display=swap">
+<link rel="stylesheet" href="site.css">
+<link rel="manifest" href="/manifest.json">
+<link rel="icon" href="/icon-192.png">
+<meta name="theme-color" content="#0038A8">
+</head>
+<body>
+<script src="common.js"></script>
+<script src="i18n.js"></script>
+<div class="tricolor"></div>
+<header class="top"><div class="wrap">
+  <a class="brand" href="/" aria-label="Sinag Jobs home"><svg viewBox="-60 -60 120 120" aria-hidden="true"><g fill="#FCD116"><use href="#ray"/><use href="#ray" transform="rotate(45)"/><use href="#ray" transform="rotate(90)"/><use href="#ray" transform="rotate(135)"/><use href="#ray" transform="rotate(180)"/><use href="#ray" transform="rotate(225)"/><use href="#ray" transform="rotate(270)"/><use href="#ray" transform="rotate(315)"/><circle r="18"/></g></svg>Sinag<b>Jobs</b></a>
+  <nav class="links"><a href="/" class="hide-sm">Browse jobs</a><span class="account" id="account"></span></nav>
+</div></header>
+<main><div class="wrap page" style="max-width:780px">
+  <div id="root"><p class="hint">Loading your test…</p></div>
+</div></main>
+<script>
+
+(async () => {
+  const { esc } = S;
+  const $ = id => document.getElementById(id);
+  const id = new URLSearchParams(location.search).get("id");
+  const user = await S.requireRole("seeker");
+  if (!user) return;
+  S.renderAccount($("account"));
+  let t, timer, saveTimer;
+
+  async function load() {
+    try { t = await S.api(`/me/tests/${id}`); } catch (err) { $("root").innerHTML = `<div class="notice bad">${esc(err.message)}</div>`; return; }
+    if (t.status === "Completed") return showResult(t);
+    if (t.questions) return showQuestions();
+    $("root").innerHTML = `
+      <p class="eyebrow">${esc(t.company)} · ${esc(t.job)}</p>
+      <h1 style="font-size:clamp(26px,3.4vw,36px);margin:6px 0 10px">${esc(t.title)}</h1>
+      <div class="facts" style="margin-bottom:16px">
+        <div><small>Questions</small><b>${t.question_count}</b></div>
+        <div><small>Time limit</small><b>${t.time_limit_minutes} minutes</b></div>
+        <div><small>Pass mark</small><b>${t.pass_score}%</b></div>
+      </div>
+      ${t.instructions ? `<div class="panel prose" style="white-space:pre-wrap">${esc(t.instructions)}</div>` : ""}
+      <div class="notice" style="margin-top:16px">The timer starts when you press Start and keeps running if you close the page. Your answers save as you go. Find a quiet spot with a steady connection.</div>
+      <div class="actions"><button class="btn btn-red" id="start">Start the test</button><a class="btn btn-ghost" href="/seeker.html#applications">Later</a></div>`;
+    $("start").onclick = async () => {
+      $("start").disabled = true;
+      try { t = await S.api(`/me/tests/${id}/start`, { method: "POST" }); showQuestions(); }
+      catch (err) { S.toast(err.message); $("start").disabled = false; }
+    };
+  }
+
+  function current() {
+    return t.questions.map((_, i) => { const c = document.querySelector(`input[name=q${i}]:checked`); return c ? +c.value : null; });
+  }
+  function showQuestions() {
+    const saved = t.answers || [];
+    $("root").innerHTML = `
+      <div class="timer" id="timer"><span>${esc(t.title)}</span><span>Time left <b id="left">--:--</b></span></div>
+      <form id="testForm" style="display:flex;flex-direction:column;gap:14px;margin-top:16px">
+        ${t.questions.map((q, i) => `<fieldset class="test-q" style="margin:0"><legend class="sr-only" style="position:absolute;left:-9999px">Question ${i + 1}</legend>
+          <h3>${i + 1}. ${esc(q.text)}</h3>
+          <div class="choices">${q.options.map((o, j) => `<label class="choice"><input type="radio" name="q${i}" value="${j}"${saved[i] === j ? " checked" : ""}> ${esc(o)}</label>`).join("")}</div></fieldset>`).join("")}
+        <div class="actions"><button class="btn btn-red" type="submit" id="submit">Submit answers</button><span class="hint" id="saved"></span></div>
+      </form>`;
+    let left = t.seconds_left;
+    const tick = () => {
+      const m = Math.floor(left / 60), s = left % 60;
+      $("left").textContent = `${m}:${String(s).padStart(2, "0")}`;
+      $("timer").classList.toggle("low", left <= 60);
+      if (left <= 0) { clearInterval(timer); submit(true); }
+      left--;
+    };
+    tick(); timer = setInterval(tick, 1000);
+    $("testForm").addEventListener("change", () => {
+      clearTimeout(saveTimer);
+      saveTimer = setTimeout(async () => {
+        try { await S.api(`/me/tests/${id}/answers`, { method: "POST", body: { answers: current(), final: false } }); $("saved").textContent = "Answers saved"; }
+        catch (err) { $("saved").textContent = "Couldn't save. Check your connection."; }
+      }, 400);
+    });
+    $("testForm").addEventListener("submit", e => { e.preventDefault(); submit(false); });
+  }
+  async function submit(auto) {
+    const answers = current();
+    if (!auto && answers.includes(null)) {
+      const b = $("submit");
+      if (b.dataset.confirm !== "1") { b.dataset.confirm = "1"; b.textContent = `${answers.filter(a => a === null).length} unanswered. Submit anyway?`; return; }
+    }
+    clearInterval(timer);
+    try { showResult(await S.api(`/me/tests/${id}/answers`, { method: "POST", body: { answers, final: true } })); }
+    catch (err) { S.toast(err.message); load(); }
+  }
+  function showResult(r) {
+    $("root").innerHTML = `
+      <p class="eyebrow">${esc(r.company)} · ${esc(r.job)}</p>
+      <h1 style="font-size:clamp(26px,3.4vw,36px);margin:6px 0 16px">${esc(r.title)}: done</h1>
+      <div class="notice ${r.passed ? "good" : ""}"><b>Your score: ${r.score}%</b>${r.late ? " (submitted after the time limit, so only answers saved in time counted)" : ""}. ${esc(r.company)} sees this result with your application.</div>
+      <div class="actions"><a class="btn btn-blue" href="/seeker.html#applications">Back to my applications</a></div>`;
+  }
+  load();
+})();
+
+</script>
+</body>
+</html>

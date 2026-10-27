@@ -1,0 +1,185 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Test checkout · Sinag Jobs</title>
+<meta name="robots" content="noindex">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,600;12..96,800&family=Figtree:wght@400;500;600;700&family=IBM+Plex+Mono:wght@500&display=swap">
+<link rel="stylesheet" href="site.css">
+<link rel="manifest" href="/manifest.json">
+<link rel="icon" href="/icon-192.png">
+<meta name="theme-color" content="#0038A8">
+</head>
+<body>
+<script src="common.js"></script>
+<script src="i18n.js"></script>
+<div class="tricolor"></div>
+<header class="top"><div class="wrap">
+  <a class="brand" href="/" aria-label="Sinag Jobs home"><svg viewBox="-60 -60 120 120" aria-hidden="true"><g fill="#FCD116"><use href="#ray"/><use href="#ray" transform="rotate(45)"/><use href="#ray" transform="rotate(90)"/><use href="#ray" transform="rotate(135)"/><use href="#ray" transform="rotate(180)"/><use href="#ray" transform="rotate(225)"/><use href="#ray" transform="rotate(270)"/><use href="#ray" transform="rotate(315)"/><circle r="18"/></g></svg>Sinag<b>Jobs</b></a>
+  <nav class="links"><a href="/" class="hide-sm">Job board</a><span class="account" id="account"></span></nav>
+</div></header>
+
+<main>
+<div class="wrap page" style="max-width:860px">
+  <div id="topNotice"></div>
+  <div id="view"><p class="muted">Loading your order…</p></div>
+</div>
+</main>
+<script>
+(async () => {
+  const { esc, peso } = S;
+  const $ = id => document.getElementById(id);
+  S.testBanner($("topNotice"));
+  const user = await S.me();
+  if (!user) { location.href = "/login.html?next=" + encodeURIComponent(location.pathname + location.search); return; }
+  S.renderAccount($("account"));
+  let order;
+  const back = () => (order && order.back_url) || (user.role === "seeker" ? "/seeker.html#extras" : "/employer.html#billing");
+  const q = new URLSearchParams(location.search);
+  const id = +q.get("order");
+  if (!id) { $("view").innerHTML = `<div class="empty-sm">No order selected. <a href="${back()}">Go to Billing</a></div>`; return; }
+
+  const when = iso => iso ? new Date(iso).toLocaleString(S.locale(), { dateStyle: "medium", timeStyle: "short" }) : "—";
+  const methodName = m => ({ card: "Test card", gcash: "GCash (simulated)", maya: "Maya (simulated)" })[m] || "—";
+
+  function receipt() {
+    const refunded = order.status === "refunded";
+    $("view").innerHTML = `
+      <div class="receipt" aria-live="polite">
+        <div class="testmode" role="note">${esc(order.notice)}</div>
+        <h1 style="font-size:26px;margin:0">${refunded ? "Refunded (test)" : "Payment received (test)"}</h1>
+        <p class="muted" style="margin:6px 0 0">${refunded ? "This test order was refunded." : "Your purchase is active now."}</p>
+        <dl>
+          <dt>Receipt no.</dt><dd style="font-family:var(--f-mono)">${esc(order.number)}</dd>
+          <dt>Company</dt><dd>${esc(order.company)}</dd>
+          <dt>Item</dt><dd>${esc(order.product)}${order.job ? ` · ${esc(order.job)}` : ""}</dd>
+          ${order.discount_php ? `<dt>Price</dt><dd>${peso(order.subtotal_php)}</dd><dt>Discount</dt><dd>${esc(order.discount_code)} −${peso(order.discount_php)}</dd>` : ""}
+          <dt>Amount</dt><dd>${peso(order.amount_php)} <span class="muted" style="font-weight:500">(test, not charged)</span></dd>
+          <dt>Paid with</dt><dd>${esc(order.card ? "Test " + order.card : order.method === "discount" ? "Discount code (nothing to pay)" : methodName(order.method))}</dd>
+          <dt>Paid on</dt><dd>${when(order.paid_at)}</dd>
+          ${refunded ? `<dt>Refunded on</dt><dd>${when(order.refunded_at)}</dd>` : ""}
+        </dl>
+        <div style="display:flex;gap:8px;flex-wrap:wrap"><a class="btn btn-blue" href="${back()}">Back to Billing</a><a class="btn btn-ghost" href="/invoice.html?order=${order.id}">Invoice</a><button class="btn btn-ghost" type="button" onclick="print()">Print receipt</button></div>
+      </div>`;
+  }
+
+  function payForm(msg, bad) {
+    const cards = order.test_cards || [];
+    $("view").innerHTML = `
+      <div class="page-head"><div><h1 style="margin:0">Test checkout</h1><p>Order <span style="font-family:var(--f-mono)">${esc(order.number)}</span></p></div></div>
+      <div class="panel" style="margin-bottom:16px">
+        <div style="display:flex;justify-content:space-between;gap:12px;flex-wrap:wrap;align-items:baseline">
+          <div><b style="font-size:18px">${esc(order.product)}</b>${order.job ? `<div class="muted">For: ${esc(order.job)}</div>` : ""}</div>
+          <div style="text-align:right">${order.discount_php ? `<div class="muted"><s>${peso(order.subtotal_php)}</s> · ${esc(order.discount_code)} −${peso(order.discount_php)}</div>` : ""}
+            <div style="font-family:var(--f-display);font-size:28px;font-weight:800">${peso(order.amount_php)}</div></div>
+        </div>
+        ${order.mode === "sandbox" ? `<form id="codeForm" style="display:flex;gap:8px;flex-wrap:wrap;align-items:end;margin-top:12px">
+          ${order.discount_code ? `<span class="pill">Code ${esc(order.discount_code)} applied</span><button class="btn btn-ghost btn-sm" type="button" id="codeRemove">Remove</button>`
+            : `<label class="f" style="flex:1;min-width:180px"><span>Discount code</span><input class="input" id="codeIn" maxlength="40" autocomplete="off"></label><button class="btn btn-ghost btn-sm">Apply</button>`}
+        </form>` : ""}
+        <p class="muted" style="margin:8px 0 0">No money moves. This simulates a payment so you can try the flow.</p>
+      </div>
+      ${msg ? `<div class="notice ${bad ? "bad" : ""}" role="alert" style="margin-bottom:16px">${esc(msg)}</div>` : ""}
+      ${order.amount_php === 0 ? `<div class="panel"><p>Your discount covers the full price. Nothing to pay.</p><button class="btn btn-red" type="button" id="freeBtn">Confirm order</button></div>` : ""}
+      <div class="panel"${order.amount_php === 0 ? " hidden" : ""}>
+        <div class="pay-methods" role="radiogroup" aria-label="Payment method">
+          ${["card", "gcash", "maya"].map((m, i) => `<label class="opt"><input type="radio" name="m" value="${m}"${i === 0 ? " checked" : ""}> ${methodName(m)}</label>`).join("")}
+        </div>
+        <form id="cardForm" autocomplete="off" novalidate>
+          <h3 style="margin:4px 0 8px">Test card numbers</h3>
+          <p class="muted" style="margin:0 0 10px">Only these numbers work. Any future expiry date and any 3-digit CVC are fine.</p>
+          <div class="table-wrap" style="margin-bottom:16px"><table class="cards-table">
+            <thead><tr><th>Number</th><th>Brand</th><th>What happens</th><th></th></tr></thead>
+            <tbody>${cards.map(c => `<tr><td><code>${c.number.replace(/(\d{4})(?=\d)/g, "$1 ")}</code></td><td>${esc(c.brand)}</td><td>${esc(c.label)}</td>
+              <td><button class="btn btn-ghost btn-sm" type="button" data-use="${c.number}">Use</button></td></tr>`).join("")}</tbody></table></div>
+          <div class="grid2" style="display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,160px),1fr));gap:12px">
+            <label class="f" style="grid-column:1/-1"><span>Test card number</span>
+              <input class="input" id="tcn" name="test-number" inputmode="numeric" autocomplete="off" autocorrect="off" spellcheck="false" placeholder="4242 4242 4242 4242" maxlength="23"></label>
+            <label class="f"><span>Expiry (MM/YY)</span><input class="input" id="texp" name="test-exp" autocomplete="off" placeholder="12/30" maxlength="5"></label>
+            <label class="f"><span>CVC</span><input class="input" id="tcvc" name="test-cvc" inputmode="numeric" autocomplete="off" placeholder="123" maxlength="4"></label>
+          </div>
+          <button class="btn btn-red" style="margin-top:16px" id="payBtn">Pay ${peso(order.amount_php)} (test)</button>
+        </form>
+        <div id="walletBox" hidden>
+          <p>This pretends to send you to the e-wallet app. Choose what happens:</p>
+          <div style="display:flex;gap:8px;flex-wrap:wrap"><button class="btn btn-red" type="button" data-wallet="success">Simulate successful payment</button><button class="btn btn-ghost" type="button" data-wallet="fail">Simulate cancelled payment</button></div>
+        </div>
+        <p style="margin:16px 0 0"><button class="btn btn-ghost btn-sm" type="button" id="cancelBtn">Cancel order</button></p>
+      </div>`;
+    if ($("codeForm")) $("codeForm").addEventListener("submit", async e => {
+      e.preventDefault();
+      try { order = { ...order, ...(await S.api(`/billing/orders/${id}/discount`, { method: "POST", body: { code: $("codeIn").value } })) }; payForm("Discount applied."); }
+      catch (err) { payForm(err.message, true); }
+    });
+    if ($("codeRemove")) $("codeRemove").onclick = async () => { order = { ...order, ...(await S.api(`/billing/orders/${id}/discount`, { method: "DELETE" })) }; payForm(); };
+    if ($("freeBtn")) $("freeBtn").onclick = async () => {
+      try { order = { ...order, ...(await S.api(`/billing/orders/${id}/confirm-free`, { method: "POST" })) }; receipt(); }
+      catch (err) { payForm(err.message, true); }
+    };
+    document.querySelectorAll("input[name=m]").forEach(r => r.onchange = () => {
+      const card = document.querySelector("input[name=m]:checked").value === "card";
+      $("cardForm").hidden = !card; $("walletBox").hidden = card;
+    });
+    $("view").querySelectorAll("[data-use]").forEach(b => b.onclick = () => {
+      $("tcn").value = b.dataset.use.replace(/(\d{4})(?=\d)/g, "$1 ");
+      if (!$("texp").value) $("texp").value = "12/" + String((new Date().getFullYear() + 4) % 100).padStart(2, "0");
+      if (!$("tcvc").value) $("tcvc").value = "123";
+      $("payBtn").focus();
+    });
+    $("cardForm").addEventListener("submit", e => {
+      e.preventDefault();
+      const [mm, yy] = $("texp").value.split("/").map(s => parseInt(s, 10));
+      pay({ method: "card", card_number: $("tcn").value, exp_month: mm || null, exp_year: yy ? 2000 + yy : null, cvc: $("tcvc").value });
+    });
+    $("view").querySelectorAll("[data-wallet]").forEach(b => b.onclick = () =>
+      pay({ method: document.querySelector("input[name=m]:checked").value, outcome: b.dataset.wallet }));
+    $("cancelBtn").onclick = async () => {
+      await S.api(`/billing/orders/${id}/cancel`, { method: "POST" }).catch(() => {});
+      location.href = back();
+    };
+  }
+
+  async function pay(body) {
+    const btns = [...$("view").querySelectorAll("button")]; btns.forEach(b => b.disabled = true);
+    try {
+      const r = await S.api(`/billing/orders/${id}/sandbox-pay`, { method: "POST", body });
+      // Clear the typed number either way; nothing card-like should linger on the page.
+      if ($("tcn")) $("tcn").value = "";
+      order = { ...order, ...r };
+      if (r.status === "paid") receipt();
+      else payForm(`Payment failed: ${r.failure_reason} Try another test card.`, true);
+    } catch (err) {
+      if ($("tcn")) $("tcn").value = "";
+      if (err.status === 409) order = await S.api(`/billing/orders/${id}`).catch(() => order);   // a code stopped working
+      payForm(err.message, true);
+    }
+  }
+
+  async function load() {
+    order = await S.api(`/billing/orders/${id}`);
+    if (order.status === "paid" || order.status === "refunded") return receipt();
+    if (order.status === "cancelled") { $("view").innerHTML = `<div class="empty-sm">This order was cancelled. <a href="${back()}">Start a new one from Billing</a>.</div>`; return true; }
+    if (order.mode !== "sandbox") {
+      // Came back from PayMongo's test checkout. The webhook marks the order paid; wait for it.
+      const ret = q.get("return");
+      $("view").innerHTML = ret === "cancel"
+        ? `<div class="empty-sm">You left the PayMongo test checkout. <a href="${back()}">Back to Billing</a></div>`
+        : `<div class="empty-sm" aria-live="polite">Waiting for PayMongo to confirm the test payment…</div>`;
+      return ret === "cancel";
+    }
+    payForm(order.status === "failed" ? `Last attempt failed: ${order.failure_reason}` : "", order.status === "failed");
+    return true;
+  }
+  try {
+    const done = await load();
+    if (!done && order.status === "pending" && q.get("return") === "success") {
+      for (let i = 0; i < 20 && order.status === "pending"; i++) { await new Promise(r => setTimeout(r, 2000)); await load(); }
+    }
+  } catch (err) { $("view").innerHTML = `<div class="notice bad">${esc(err.message)}</div>`; }
+})();
+</script>
+</body>
+</html>

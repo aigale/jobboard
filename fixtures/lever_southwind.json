@@ -1,0 +1,78 @@
+[
+ {
+  "id": "a1b2c3d4-0001",
+  "text": "Sales Development Representative (Australia market)",
+  "hostedUrl": "https://jobs.lever.co/southwind/a1b2c3d4-0001",
+  "applyUrl": "https://jobs.lever.co/southwind/a1b2c3d4-0001/apply",
+  "createdAt": "{{ago_ms:66}}",
+  "country": "PH",
+  "workplaceType": "remote",
+  "categories": {
+   "location": "Remote - Philippines",
+   "team": "Sales",
+   "commitment": "Full-time",
+   "allLocations": [
+    "Remote - Philippines"
+   ]
+  },
+  "description": "<p>Book meetings with Australian businesses during Australian business hours.</p>",
+  "lists": [
+   {
+    "text": "Perks",
+    "content": "<li>Uncapped commission</li><li>HMO for you and one dependent</li><li>Paid leaves</li>"
+   }
+  ],
+  "additional": "",
+  "salaryRange": {
+   "currency": "USD",
+   "interval": "per-month-salary",
+   "min": 600,
+   "max": 800
+  }
+ },
+ {
+  "id": "a1b2c3d4-0002",
+  "text": "QA Automation Engineer",
+  "hostedUrl": "https://jobs.lever.co/southwind/a1b2c3d4-0002",
+  "applyUrl": "https://jobs.lever.co/southwind/a1b2c3d4-0002/apply",
+  "createdAt": "{{ago_ms:130}}",
+  "country": "PH",
+  "workplaceType": "hybrid",
+  "categories": {
+   "location": "Cebu City, Philippines",
+   "team": "Engineering",
+   "commitment": "Full-time",
+   "allLocations": [
+    "Cebu City, Philippines"
+   ]
+  },
+  "description": "<p>Join our Cebu IT Park office two days a week. Day shift, 9am to 6pm Manila time.</p>",
+  "lists": [
+   {
+    "text": "Requirements",
+    "content": "<li>2-4 years of experience with Playwright or Cypress</li>"
+   }
+  ],
+  "additional": "<p>13th month pay, rice allowance, HMO.</p>"
+ },
+ {
+  "id": "a1b2c3d4-0003",
+  "text": "Account Executive",
+  "hostedUrl": "https://jobs.lever.co/southwind/a1b2c3d4-0003",
+  "applyUrl": "https://jobs.lever.co/southwind/a1b2c3d4-0003/apply",
+  "createdAt": "{{ago_ms:200}}",
+  "country": "GB",
+  "workplaceType": "onsite",
+  "categories": {
+   "location": "London",
+   "team": "Sales",
+   "commitment": "Full-time",
+   "allLocations": [
+    "London"
+   ]
+  },
+  "description": "<p>London office.</p>",
+  "lists": [],
+  "additional": ""
+ }
+]

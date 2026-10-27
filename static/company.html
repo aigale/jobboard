@@ -1,0 +1,73 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Company · Sinag Jobs</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,600;12..96,800&family=Figtree:wght@400;500;600;700&family=IBM+Plex+Mono:wght@500&display=swap">
+<link rel="stylesheet" href="site.css">
+<link rel="manifest" href="/manifest.json">
+<link rel="icon" href="/icon-192.png">
+<meta name="theme-color" content="#0038A8">
+</head>
+<body>
+<script src="common.js"></script>
+<script src="i18n.js"></script>
+<div class="tricolor"></div>
+<header class="top"><div class="wrap">
+  <a class="brand" href="/" aria-label="Sinag Jobs home"><svg viewBox="-60 -60 120 120" aria-hidden="true"><g fill="#FCD116"><use href="#ray"/><use href="#ray" transform="rotate(45)"/><use href="#ray" transform="rotate(90)"/><use href="#ray" transform="rotate(135)"/><use href="#ray" transform="rotate(180)"/><use href="#ray" transform="rotate(225)"/><use href="#ray" transform="rotate(270)"/><use href="#ray" transform="rotate(315)"/><circle r="18"/></g></svg>Sinag<b>Jobs</b></a>
+  <nav class="links"><a href="/" class="hide-sm">Browse jobs</a><span class="account" id="account"></span></nav>
+</div></header>
+<main><div class="cover" id="cover"></div>
+<div class="wrap" style="padding-block:0 64px" id="root"><p class="hint" style="padding-top:60px">Loading…</p></div></main>
+<script>
+
+(async () => {
+  const { esc, peso } = S;
+  const $ = id => document.getElementById(id);
+  S.renderAccount($("account"));
+  const slug = new URLSearchParams(location.search).get("c") || location.hash.slice(1);
+  let c;
+  try { c = await S.api(`/companies/${encodeURIComponent(slug)}`); }
+  catch (err) { $("root").innerHTML = `<div class="notice bad" style="margin-top:60px">${esc(err.message)} <a href="/">Browse jobs</a>.</div>`; return; }
+  document.title = `${c.name} · Sinag Jobs`;
+  if (c.cover_url) $("cover").style.backgroundImage = `url("${c.cover_url}")`;
+  const linkNames = { facebook: "Facebook", linkedin: "LinkedIn", instagram: "Instagram", tiktok: "TikTok", youtube: "YouTube" };
+  const facts = [c.industry, c.location, c.size && `${c.size} employees`, c.founded && `Founded ${c.founded}`].filter(Boolean);
+  $("root").innerHTML = `
+    <div class="co-head">
+      <div class="co-logo" style="background:${c.logo_url ? "var(--surface)" : S.colorFor(c.name)}">${c.logo_url ? `<img src="${esc(c.logo_url)}" alt="${esc(c.name)} logo">` : esc(S.initials(c.name))}</div>
+      <div style="min-width:0;padding-bottom:6px">
+        <h1>${esc(c.name)} ${c.verified ? `<span class="status s-live" style="vertical-align:middle">Verified employer</span>` : ""}</h1>
+        ${c.tagline ? `<p style="margin:4px 0 0;font-size:17px">${esc(c.tagline)}</p>` : ""}
+        <div class="co-facts">${facts.map(f => `<span>${esc(f)}</span>`).join("")}</div>
+      </div>
+    </div>
+    <div class="co-grid">
+      <div style="display:flex;flex-direction:column;gap:28px;min-width:0">
+        ${c.about ? `<section><h2 class="section-title">About us</h2><p class="prose" style="white-space:pre-wrap;margin:0">${esc(c.about)}</p></section>` : ""}
+        ${c.video_embed ? `<section><h2 class="section-title">Take a look inside</h2><div class="video"><iframe src="${esc(c.video_embed)}" title="${esc(c.name)} video tour" loading="lazy" allow="accelerometer; encrypted-media; picture-in-picture" allowfullscreen referrerpolicy="strict-origin-when-cross-origin"></iframe></div></section>` : ""}
+        ${c.culture_values.length ? `<section><h2 class="section-title">What we value</h2><div class="values">${c.culture_values.map(v => `<div><b>${esc(v.title)}</b>${esc(v.text)}</div>`).join("")}</div></section>` : ""}
+        ${c.photos.length ? `<section><h2 class="section-title">Our workplace</h2><div class="photos">${c.photos.map(p => `<img src="${esc(p)}" alt="Workplace photo at ${esc(c.name)}" loading="lazy">`).join("")}</div></section>` : ""}
+        <section><h2 class="section-title">Open jobs <span class="hint" style="font-size:16px">(${c.jobs.length})</span></h2>
+          ${c.jobs.length ? `<div class="rows">${c.jobs.map(j => `<a class="rowcard" href="/#job-${j.id}" style="text-decoration:none;color:inherit"><div style="min-width:0"><h3>${esc(j.title)}</h3>
+            <div class="meta"><span>${esc(j.city || j.location)}</span><span class="pill">${esc(j.setup)}</span>${j.easy_apply ? '<span class="pill easy">Easy Apply</span>' : ""}<span>${S.ago(j.posted_at)}</span></div></div>
+            <div class="side"><span class="salary">${j.salary_max ? `${peso(j.salary_min)}–${peso(j.salary_max)}` : "<small>Salary not stated</small>"}</span></div></a>`).join("")}</div>`
+            : `<div class="empty-sm">No open jobs right now. Set up a job alert to hear about new ones.</div>`}
+        </section>
+      </div>
+      <aside class="co-side">
+        ${c.testimonials.length ? `<section><h2 class="section-title">From our team</h2><div style="display:flex;flex-direction:column;gap:12px">${c.testimonials.map(t => `<blockquote class="quote"><p>${esc(t.quote)}</p><footer><b>${esc(t.name)}</b>${t.role ? `, ${esc(t.role)}` : ""}</footer></blockquote>`).join("")}</div></section>` : ""}
+        <section class="panel"><h2 style="font-size:18px">Links</h2><div style="display:flex;flex-direction:column;gap:6px;margin-top:8px">
+          ${c.website ? `<a href="${esc(c.website)}" target="_blank" rel="noopener nofollow">Website</a>` : ""}
+          ${Object.entries(c.links || {}).map(([k, v]) => `<a href="${esc(v)}" target="_blank" rel="noopener nofollow">${esc(linkNames[k] || k)}</a>`).join("")}
+          ${!c.website && !Object.keys(c.links || {}).length ? '<span class="hint">No links yet.</span>' : ""}</div></section>
+      </aside>
+    </div>`;
+})();
+
+</script>
+</body>
+</html>

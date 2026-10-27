@@ -1,0 +1,72 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Follow-up questions · Sinag Jobs</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,600;12..96,800&family=Figtree:wght@400;500;600;700&family=IBM+Plex+Mono:wght@500&display=swap">
+<link rel="stylesheet" href="site.css">
+<link rel="manifest" href="/manifest.json">
+<link rel="icon" href="/icon-192.png">
+<meta name="theme-color" content="#0038A8">
+</head>
+<body>
+<script src="common.js"></script>
+<script src="i18n.js"></script>
+<div class="tricolor"></div>
+<header class="top"><div class="wrap">
+  <a class="brand" href="/" aria-label="Sinag Jobs home"><svg viewBox="-60 -60 120 120" aria-hidden="true"><g fill="#FCD116"><use href="#ray"/><use href="#ray" transform="rotate(45)"/><use href="#ray" transform="rotate(90)"/><use href="#ray" transform="rotate(135)"/><use href="#ray" transform="rotate(180)"/><use href="#ray" transform="rotate(225)"/><use href="#ray" transform="rotate(270)"/><use href="#ray" transform="rotate(315)"/><circle r="18"/></g></svg>Sinag<b>Jobs</b></a>
+  <nav class="links"><a href="/" class="hide-sm">Browse jobs</a><span class="account" id="account"></span></nav>
+</div></header>
+<main><div class="wrap page" style="max-width:720px">
+  <p class="eyebrow" id="who"></p>
+  <h1 style="font-size:clamp(24px,3.2vw,34px);margin:6px 0 6px">Follow-up questions</h1>
+  <p class="hint" id="modeNote" style="margin:0 0 16px"></p>
+  <div class="chat" id="chat" aria-live="polite"></div>
+  <form class="chat-form" id="form">
+    <textarea id="msg" rows="2" maxlength="1000" placeholder="Type your answer" aria-label="Your answer"></textarea>
+    <button class="btn btn-red" type="submit" id="send">Send</button>
+  </form>
+  <div class="actions"><a class="btn btn-ghost" href="/seeker.html#applications">Back to my applications</a></div>
+</div></main>
+<script>
+
+(async () => {
+  const { esc } = S;
+  const $ = id => document.getElementById(id);
+  const app = new URLSearchParams(location.search).get("app");
+  const user = await S.requireRole("seeker");
+  if (!user) return;
+  S.renderAccount($("account"));
+  const draw = c => {
+    $("chat").innerHTML = c.messages.map(m => `<div class="bubble ${m.role === "bot" ? "bot" : "candidate"}">${esc(m.text)}</div>`).join("");
+    $("chat").scrollTop = $("chat").scrollHeight;
+    const done = c.status === "done";
+    $("form").hidden = done;
+    if (done && !$("doneNote")) $("chat").insertAdjacentHTML("afterend", `<div class="notice good" id="doneNote" style="margin-top:12px">All done. Your answers were added to your application.</div>`);
+  };
+  let c;
+  try { c = await S.api(`/me/applications/${app}/chat`); }
+  catch (err) { $("chat").innerHTML = `<p class="err">${esc(err.message)}</p>`; $("form").hidden = true; return; }
+  $("who").textContent = `${c.company} · ${c.job}`;
+  $("modeNote").textContent = c.mode === "ai" ? "An AI assistant asks these questions for the employer. The team reads your answers, not the assistant." : "Answer in your own words. Short answers are fine.";
+  draw(c);
+  $("msg").focus();
+  $("msg").addEventListener("keydown", e => { if (e.key === "Enter" && !e.shiftKey) { e.preventDefault(); $("form").requestSubmit(); } });
+  $("form").addEventListener("submit", async e => {
+    e.preventDefault();
+    const text = $("msg").value.trim(); if (!text) return;
+    $("send").disabled = true; $("msg").value = "";
+    c.messages.push({ role: "candidate", text }); draw(c);
+    $("chat").insertAdjacentHTML("beforeend", `<div class="typing" id="typing">Typing…</div>`);
+    try { c = await S.api(`/me/applications/${app}/chat`, { method: "POST", body: { text } }); draw(c); }
+    catch (err) { S.toast(err.message); c.messages.pop(); draw(c); $("msg").value = text; }
+    finally { $("send").disabled = false; $("msg").focus(); const t = $("typing"); if (t) t.remove(); }
+  });
+})();
+
+</script>
+</body>
+</html>

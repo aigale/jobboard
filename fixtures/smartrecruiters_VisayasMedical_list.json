@@ -1,0 +1,60 @@
+{
+ "totalFound": 3,
+ "offset": 0,
+ "limit": 100,
+ "content": [
+  {
+   "id": "744000011",
+   "name": "Staff Nurse, Emergency Department",
+   "releasedDate": "{{ago:18}}",
+   "location": {
+    "city": "Iloilo City",
+    "region": "Western Visayas",
+    "country": "ph",
+    "remote": false
+   },
+   "typeOfEmployment": {
+    "label": "Full-time"
+   },
+   "department": {
+    "label": "Nursing"
+   },
+   "function": {
+    "label": "Healthcare"
+   }
+  },
+  {
+   "id": "744000012",
+   "name": "Medical Coder",
+   "releasedDate": "{{ago:90}}",
+   "location": {
+    "city": "Bacolod",
+    "region": "Negros Occidental",
+    "country": "ph",
+    "remote": false
+   },
+   "typeOfEmployment": {
+    "label": "Full-time"
+   },
+   "department": {
+    "label": "Health Information"
+   }
+  },
+  {
+   "id": "744000013",
+   "name": "Registered Nurse",
+   "releasedDate": "{{ago:30}}",
+   "location": {
+    "city": "Riyadh",
+    "country": "sa",
+    "remote": false
+   },
+   "typeOfEmployment": {
+    "label": "Full-time"
+   },
+   "department": {
+    "label": "Nursing"
+   }
+  }
+ ]
+}

@@ -1,0 +1,36 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Offline · Sinag Jobs</title>
+<style>
+  :root{--bg:#F5F7FC;--fg:#101A36;--muted:#56607A;--accent:#0038A8}
+  @media (prefers-color-scheme:dark){:root{--bg:#0A1226;--fg:#EDF1FB;--muted:#9AA6C4;--accent:#6E9BFF}}
+  body{margin:0;background:var(--bg);color:var(--fg);font-family:system-ui,-apple-system,"Segoe UI",sans-serif;min-height:100vh;display:grid;place-items:center;padding:24px;box-sizing:border-box;text-align:center}
+  .bar{position:fixed;top:0;left:0;right:0;height:5px;background:linear-gradient(90deg,#0038A8 45%,#FCD116 45% 55%,#CE1126 55%)}
+  h1{font-size:24px;margin:16px 0 8px} p{color:var(--muted);max-width:320px;margin:0 auto 20px;line-height:1.5}
+  button{background:var(--accent);color:#fff;border:0;border-radius:10px;padding:12px 20px;font-size:16px;font-weight:700}
+</style>
+</head>
+<body>
+<div class="bar"></div>
+<main>
+  <svg width="72" height="72" viewBox="-60 -60 120 120" aria-hidden="true"><g fill="#FCD116"><circle r="18"/><g id="r"><polygon points="0,-24 -4,-46 0,-56 4,-46"/></g><use href="#r" transform="rotate(45)"/><use href="#r" transform="rotate(90)"/><use href="#r" transform="rotate(135)"/><use href="#r" transform="rotate(180)"/><use href="#r" transform="rotate(225)"/><use href="#r" transform="rotate(270)"/><use href="#r" transform="rotate(315)"/></g></svg>
+  <h1 id="t">You're offline</h1>
+  <p id="m">Sinag Jobs needs the internet to show jobs. Check your Wi-Fi or mobile data, then try again.</p>
+  <button type="button" id="b" onclick="location.href='index.html'">Try again</button>
+</main>
+<script>
+  // Same words in the language picked on the site (saved on this phone)
+  const T = {
+    tl: ["Offline ka", "Kailangan ng Sinag Jobs ng internet para magpakita ng trabaho. Tingnan ang Wi-Fi o mobile data mo, saka subukan ulit.", "Subukan ulit"],
+    ceb: ["Offline ka", "Kinahanglan sa Sinag Jobs ang internet aron magpakita og trabaho. Susiha ang imong Wi-Fi o mobile data, dayon sulayi pag-usab.", "Sulayi pag-usab"]
+  };
+  let l = null; try { l = localStorage.getItem("sinag_lang"); } catch (e) {}
+  if (!l) { const n = (navigator.language || "").toLowerCase(); l = n.startsWith("fil") || n.startsWith("tl") ? "tl" : n.startsWith("ceb") ? "ceb" : null; }
+  if (T[l]) { document.getElementById("t").textContent = T[l][0]; document.getElementById("m").textContent = T[l][1]; document.getElementById("b").textContent = T[l][2]; document.documentElement.lang = l; }
+  window.addEventListener("online", () => { location.href = "index.html"; });
+</script>
+</body>
+</html>

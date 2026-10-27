@@ -1,0 +1,54 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Join a team · Sinag Jobs</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,600;12..96,800&family=Figtree:wght@400;500;600;700&family=IBM+Plex+Mono:wght@500&display=swap">
+<link rel="stylesheet" href="site.css">
+<link rel="manifest" href="/manifest.json">
+<link rel="icon" href="/icon-192.png">
+<meta name="theme-color" content="#0038A8">
+</head>
+<body>
+<script src="common.js"></script>
+<script src="i18n.js"></script>
+<div class="tricolor"></div>
+<header class="top"><div class="wrap">
+  <a class="brand" href="/" aria-label="Sinag Jobs home"><svg viewBox="-60 -60 120 120" aria-hidden="true"><g fill="#FCD116"><use href="#ray"/><use href="#ray" transform="rotate(45)"/><use href="#ray" transform="rotate(90)"/><use href="#ray" transform="rotate(135)"/><use href="#ray" transform="rotate(180)"/><use href="#ray" transform="rotate(225)"/><use href="#ray" transform="rotate(270)"/><use href="#ray" transform="rotate(315)"/><circle r="18"/></g></svg>Sinag<b>Jobs</b></a>
+  <nav class="links"><a href="/" class="hide-sm">Browse jobs</a><span class="account" id="account"></span></nav>
+</div></header>
+<main class="wrap"><div class="auth-wrap"><section class="panel" id="root"><p class="hint">Checking your invite…</p></section></div></main>
+<script>
+
+(async () => {
+  const { esc } = S;
+  const $ = id => document.getElementById(id);
+  S.renderAccount($("account"));
+  const token = new URLSearchParams(location.search).get("token") || "";
+  let info;
+  try { info = await S.api(`/employer/team/invite-info?token=${encodeURIComponent(token)}`); }
+  catch (err) { $("root").innerHTML = `<h1 style="font-size:26px">Invite not valid</h1><p>${esc(err.message)}</p>`; return; }
+  const user = await S.me();
+  const here = location.pathname + location.search;
+  if (!user) {
+    $("root").innerHTML = `<h1 style="font-size:26px;margin-bottom:8px">Join ${esc(info.company)}</h1>
+      <p>You're invited to help hire on Sinag Jobs. Create an employer account with <b>${esc(info.email)}</b>, or sign in if you already have one.</p>
+      <div class="actions"><a class="btn btn-red" href="/login.html?role=employer&next=${encodeURIComponent(here)}#signup">Create account</a>
+      <a class="btn btn-ghost" href="/login.html?next=${encodeURIComponent(here)}">Sign in</a></div>`;
+    return;
+  }
+  $("root").innerHTML = `<h1 style="font-size:26px;margin-bottom:8px">Join ${esc(info.company)}</h1>
+    <p>You'll be able to post jobs and review applicants for ${esc(info.company)}.</p>
+    <div class="actions"><button class="btn btn-red" id="accept">Accept invite</button></div><p class="err" id="err" hidden></p>`;
+  $("accept").onclick = async () => {
+    try { await S.api("/employer/team/accept", { method: "POST", body: { token } }); location.href = "/employer.html#jobs"; }
+    catch (err) { $("err").textContent = err.message; $("err").hidden = false; }
+  };
+})();
+
+</script>
+</body>
+</html>

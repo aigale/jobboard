@@ -1,0 +1,29 @@
+# Secrets: never upload. Copy .env.example to .env on each computer and server.
+.env
+
+# Private keys (Firebase service account etc.)
+secrets/
+
+# Phone app: installed packages, build output and Firebase config files
+mobile/node_modules/
+mobile/android/app/build/
+mobile/android/.gradle/
+mobile/android/app/google-services.json
+mobile/ios/App/App/GoogleService-Info.plist
+mobile/ios/App/build/
+
+# Local database and Python files
+sinag.db*
+uploads/
+__pycache__/
+*.pyc
+.pytest_cache/
+.venv/
+
+# Operating system clutter
+.DS_Store
+Thumbs.db
+desktop.ini
+
+# companies.yaml IS uploaded on purpose: it is your list of companies to crawl,
+# not a secret, and the server gets it from GitHub.

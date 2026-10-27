@@ -1,0 +1,75 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Invoice · Sinag Jobs</title>
+<meta name="robots" content="noindex">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,600;12..96,800&family=Figtree:wght@400;500;600;700&family=IBM+Plex+Mono:wght@500&display=swap">
+<link rel="stylesheet" href="site.css">
+<link rel="manifest" href="/manifest.json">
+<link rel="icon" href="/icon-192.png">
+<meta name="theme-color" content="#0038A8">
+</head>
+<body>
+<script src="common.js"></script>
+<script src="i18n.js"></script>
+<div class="tricolor"></div>
+<header class="top"><div class="wrap">
+  <a class="brand" href="/" aria-label="Sinag Jobs home"><svg viewBox="-60 -60 120 120" aria-hidden="true"><g fill="#FCD116"><use href="#ray"/><use href="#ray" transform="rotate(45)"/><use href="#ray" transform="rotate(90)"/><use href="#ray" transform="rotate(135)"/><use href="#ray" transform="rotate(180)"/><use href="#ray" transform="rotate(225)"/><use href="#ray" transform="rotate(270)"/><use href="#ray" transform="rotate(315)"/><circle r="18"/></g></svg>Sinag<b>Jobs</b></a>
+  <nav class="links"><a href="/" class="hide-sm">Job board</a><span class="account" id="account"></span></nav>
+</div></header>
+
+<main>
+<div class="wrap page">
+  <div class="noprint" style="display:flex;gap:8px;justify-content:space-between;flex-wrap:wrap;max-width:760px;margin:0 auto 16px">
+    <a class="btn btn-ghost btn-sm" id="backLink" href="/">← Back</a>
+    <button class="btn btn-blue btn-sm" type="button" onclick="print()">Print or save as PDF</button>
+  </div>
+  <div id="view"><p class="muted">Loading invoice…</p></div>
+</div>
+</main>
+<script>
+(async () => {
+  const { esc, peso } = S;
+  const $ = id => document.getElementById(id);
+  const user = await S.me();
+  if (!user) { location.href = "/login.html?next=" + encodeURIComponent(location.pathname + location.search); return; }
+  S.renderAccount($("account"));
+  const id = +new URLSearchParams(location.search).get("order");
+  const money = n => "₱" + Number(n).toLocaleString(S.locale(), { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+  try {
+    const inv = await S.api(user.role === "admin" ? `/admin/billing/orders/${id}/invoice` : `/billing/orders/${id}/invoice`);
+    $("backLink").href = user.role === "admin" ? "/admin.html#billing" : inv.back_url;
+    const issued = new Date(inv.issued_at).toLocaleDateString(S.locale(), { year: "numeric", month: "long", day: "numeric" });
+    const method = inv.payment.card || ({ gcash: "GCash (simulated)", maya: "Maya (simulated)", discount: "Discount code", renewal: "Saved test card" }[inv.payment.method] || inv.payment.method || "");
+    $("view").innerHTML = `<article class="invoice" aria-label="Invoice ${esc(inv.number)}">
+      <div class="testmode" role="note">${esc(inv.notice)}</div>
+      <div class="top">
+        <div><h1>Invoice</h1><p style="margin:6px 0 0;font-family:var(--f-mono)">${esc(inv.number)}</p><p class="muted" style="margin:4px 0 0">Issued ${esc(issued)}</p></div>
+        <div style="text-align:right"><span class="stamp">${inv.status === "refunded" ? "REFUNDED · TEST" : "TEST · NOT VALID FOR TAX"}</span></div>
+      </div>
+      <div class="grid2" style="margin-bottom:8px">
+        <div><small class="muted">From</small><p style="margin:4px 0 0"><b>${esc(inv.seller.name)}</b>${inv.seller.address ? `<br>${esc(inv.seller.address)}` : ""}
+          ${inv.seller.tin ? `<br>TIN ${esc(inv.seller.tin)}` : ""}<br>${inv.seller.vat_registered ? "VAT-registered" : "Non-VAT"}</p></div>
+        <div><small class="muted">Bill to</small><p style="margin:4px 0 0"><b>${esc(inv.bill_to.name || "")}</b>${inv.bill_to.address ? `<br>${esc(inv.bill_to.address)}` : ""}
+          ${inv.bill_to.tin ? `<br>TIN ${esc(inv.bill_to.tin)}` : ""}${inv.bill_to.email ? `<br>${esc(inv.bill_to.email)}` : ""}</p></div>
+      </div>
+      <table><thead><tr><th>Description</th><th class="n">Qty</th><th class="n">Unit price</th><th class="n">Amount</th></tr></thead>
+        <tbody>${inv.lines.map(l => `<tr><td>${esc(l.description)}</td><td class="n">${l.qty}</td><td class="n">${money(l.unit_php)}</td><td class="n">${money(l.amount_php)}</td></tr>`).join("")}</tbody></table>
+      <div class="totals">
+        <div><span>Subtotal</span><span>${money(inv.subtotal_php)}</span></div>
+        ${inv.discount_php ? `<div><span>Discount (${esc(inv.discount_code)})</span><span>−${money(inv.discount_php)}</span></div>` : ""}
+        ${inv.vat ? `<div class="muted"><span>VATable sales</span><span>${money(inv.vat.vatable_sales)}</span></div><div class="muted"><span>VAT 12%</span><span>${money(inv.vat.vat_12)}</span></div>` : ""}
+        <div class="grand"><span>Total</span><span>${money(inv.total_php)}</span></div>
+      </div>
+      <p style="margin-top:20px">Paid with: ${esc(method)}${inv.refunded_at ? ` · Refunded ${esc(new Date(inv.refunded_at).toLocaleDateString(S.locale()))}` : ""}</p>
+      <p class="hint" style="margin-top:20px">${esc(inv.notice)} This page is for trying the billing flow. A real invoice needs BIR registration (Authority to Print or an accredited invoicing system).</p>
+    </article>`;
+  } catch (err) { $("view").innerHTML = `<div class="notice bad">${esc(err.message)}</div>`; }
+})();
+</script>
+</body>
+</html>

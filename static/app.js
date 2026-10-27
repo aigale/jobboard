@@ -128,9 +128,33 @@ $("jobs").addEventListener("click", e => {
 $("jobs").addEventListener("keydown", e => { if (e.key === "Enter" && e.target.classList.contains("job")) openJob(+e.target.dataset.id); });
 
 // ---------------------------------------------------------------- Job details
+// Some cached/older copies of index.html (or a browser extension) may be missing the
+// modal markup. Create it on demand so one missing element cannot stop the whole board
+// from initialising.
+function ensureModal() {
+  let scrim = $("scrim"), modal = $("modal");
+  if (!scrim) {
+    scrim = document.createElement("div");
+    scrim.id = "scrim";
+    scrim.className = "scrim";
+    scrim.hidden = true;
+    document.body.appendChild(scrim);
+  }
+  if (!modal) {
+    modal = document.createElement("div");
+    modal.id = "modal";
+    modal.className = "modal";
+    modal.setAttribute("role", "dialog");
+    modal.setAttribute("aria-modal", "true");
+    modal.setAttribute("aria-labelledby", "mTitle");
+  }
+  if (modal.parentElement !== scrim) scrim.appendChild(modal);
+  return scrim;
+}
+const scrim = ensureModal();
 let current = null;
 async function openJob(id) {
-  $("modal").innerHTML = `<div class="mbody">Loading…</div>`; $("scrim").hidden = false;
+  $("modal").innerHTML = `<div class="mbody">Loading…</div>`; scrim.hidden = false;
   if (location.hash !== "#job-" + id) history.replaceState(null, "", "#job-" + id);
   let j;
   try { j = await S.api("/jobs/" + id); }
@@ -178,9 +202,9 @@ async function openJob(id) {
   if ($("mEasy")) $("mEasy").onclick = () => startApply(j);
   if ($("mExt")) $("mExt").addEventListener("click", () => track({ type: "apply_click", job_id: j.id }));
 }
-function closeJob() { $("scrim").hidden = true; current = null; if (/^#job-/.test(location.hash)) history.replaceState(null, "", location.pathname + location.search); }
-$("scrim").addEventListener("click", e => { if (e.target.id === "scrim") closeJob(); });
-document.addEventListener("keydown", e => { if (e.key === "Escape" && !$("scrim").hidden) closeJob(); });
+function closeJob() { scrim.hidden = true; current = null; if (/^#job-/.test(location.hash)) history.replaceState(null, "", location.pathname + location.search); }
+scrim.addEventListener("click", e => { if (e.target.id === "scrim") closeJob(); });
+document.addEventListener("keydown", e => { if (e.key === "Escape" && !scrim.hidden) closeJob(); });
 
 // ---------------------------------------------------------------- Easy Apply
 async function startApply(j) {

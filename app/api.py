@@ -58,6 +58,10 @@ async def same_origin_writes(request: Request, call_next):
     response = await call_next(request)
     response.headers.setdefault("X-Content-Type-Options", "nosniff")
     response.headers.setdefault("Referrer-Policy", "strict-origin-when-cross-origin")
+    # HTML must be revalidated so a deploy cannot leave an old page pointing at an
+    # incompatible cached script. Fingerprinted/versioned assets are handled in the page.
+    if request.method == "GET" and (request.url.path == "/" or request.url.path.endswith(".html")):
+        response.headers.setdefault("Cache-Control", "no-cache")
     return response
 
 

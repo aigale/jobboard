@@ -84,5 +84,6 @@ def test_admin_requires_token(client):
 
 def test_site_is_served(client):
     r = client.get("/")
-    assert r.status_code == 200 and "Sinag" in r.text and 'src="app.js"' in r.text
+    assert r.status_code == 200 and "Sinag" in r.text and 'src="app.js' in r.text
+    assert 'id="scrim"' in r.text and 'id="modal"' in r.text
     assert client.get("/app.js").status_code == 200
